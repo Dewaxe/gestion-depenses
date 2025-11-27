@@ -1,31 +1,33 @@
 const express = require("express");
 const cors = require("cors");
+const db = require("./db");
 const app = express();
 const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
 
-const expenses = [
-    {
-        id: 1,
-        amount: 25.5,
-        currency: "EUR",
-        date: "2025-01-15",
-        category: "Courses",
-        paymentMethod: "Carte",
-        description: "Courses raclette",
-    }
-]
-
-let nextExpenseId = 2;
-
 app.get("/api/health", (req, res) => {
     res.json({ status: "OK", message: "Le serveur fonctionne !" });
 });
 
 app.get("/api/expenses", (req, res) => {
-    res.json(expenses);
+    const statement = db.prepare(`
+        SELECT
+            id,
+            amount,
+            currency,
+            date,
+            category,
+            payment_method AS paymentMethod,
+            description
+        FROM expenses
+        ORDER BY date DESC, id DESC
+    `);
+
+    const rows = statement.all();
+    
+    res.json(rows);
 });
 
 app.post("/api/expenses", (req, res) => {
@@ -35,8 +37,22 @@ app.post("/api/expenses", (req, res) => {
         return res.status(400).json({ error: "amount, date et category sont obligatoires" });
     }
 
+    const insertStatment = db.prepare(`
+        INSERT INTO expenses (amount, currency, date, category, payment_method, description)
+        VALUES (?, ?, ?, ?, ?, ?)
+    `);
+
+    const info = insertStatment.run(
+        amount,
+        currency || "EUR",
+        date,
+        category,
+        paymentMethod || "Inconnu",
+        description || ""
+    );
+
     const newExpense = {
-        id: nextExpenseId++,
+        id: info.lastInsertRowid,
         amount,
         currency: currency || "EUR",
         date,
@@ -45,10 +61,7 @@ app.post("/api/expenses", (req, res) => {
         description: description || "",
     };
 
-    expenses.push(newExpense);
-
     res.status(201).json(newExpense);
-
 })
 
 app.listen(PORT, () => {
