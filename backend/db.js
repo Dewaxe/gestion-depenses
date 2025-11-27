@@ -15,4 +15,16 @@ db.exec(`
     );
 `);
 
+db.exec(`
+    CREATE TABLE IF NOT EXISTS subscriptions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        price REAL NOT NULL,
+        currency TEXT NOT NULL DEFAULT 'EUR',
+        frequency TEXT NOT NULL,
+        next_billing_date TEXT NOT NULL,
+        description TEXT DEFAULT ''
+    );
+`);
+
 module.exports = db;

@@ -30,6 +30,25 @@ app.get("/api/expenses", (req, res) => {
     res.json(rows);
 });
 
+app.get("/api/subscriptions", (req, res) => {
+    const statement = db.prepare(`
+        SELECT
+            id,
+            name,
+            price,
+            currency,
+            frequency,
+            next_billing_date AS nextBillingDate,
+            description
+        FROM subscriptions
+        ORDER BY next_billing_date ASC, id ASC
+    `);
+
+    const rows = statement.all();
+    
+    res.json(rows);
+});
+
 app.post("/api/expenses", (req, res) => {
     const { amount, currency, date, category, paymentMethod, description } = req.body;
 
@@ -62,6 +81,40 @@ app.post("/api/expenses", (req, res) => {
     };
 
     res.status(201).json(newExpense);
+})
+
+app.post("/api/subscriptions", (req, res) => {
+    const { name, price, currency, frequency, nextBillingDate, description } = req.body;
+
+    if (!name || price == null || !frequency || !nextBillingDate) {
+        return res.status(400).json({ error: "name, price, frequency et nextBillingDate sont obligatoires" });
+    }
+
+    const insertStatment = db.prepare(`
+        INSERT INTO subscriptions (name, price, currency, frequency, next_billing_date, description)
+        VALUES (?, ?, ?, ?, ?, ?)
+    `);
+
+    const info = insertStatment.run(
+        name,
+        price,
+        currency || "EUR",
+        frequency,
+        nextBillingDate,
+        description || ""
+    );
+
+    const newSubscription = {
+        id: info.lastInsertRowid,
+        name,
+        price,
+        currency: currency || "EUR",
+        frequency,
+        nextBillingDate,
+        description: description || "",
+    };
+
+    res.status(201).json(newSubscription);
 })
 
 app.listen(PORT, () => {
