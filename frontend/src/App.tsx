@@ -1,16 +1,36 @@
-import { useState } from 'react'
-import './App.css'
+import { Routes, Route, Link } from 'react-router-dom'
+import HomePage from './pages/HomePage'
+import ExpensesPage from './pages/ExpensesPage'
+import SubscriptionsPage from './pages/SubscriptionsPage'
+
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <h1>Gestion de dépenses et abonnements</h1>
-        <p>Bienvenue dans ton application de suivi financier 🚀</p>
-      </div>
-    </>
+    <div>
+      <header>
+        <nav>
+          <ul style={{ display: 'flex', gap: '1rem', listStyle: 'none' }}>
+            <li>
+              <Link to='/'>Accueil</Link>
+            </li>
+            <li>
+              <Link to='/expenses'>Dépenses</Link>
+            </li>
+            <li>
+              <Link to='/subscriptions'>Abonnements</Link>
+            </li>
+          </ul>
+        </nav>
+      </header>
+
+      <main>
+        <Routes>
+          <Route path='/' element={<HomePage />} />
+          <Route path='/expenses' element={<ExpensesPage />} />
+          <Route path='/subscriptions' element={<SubscriptionsPage />} />
+        </Routes>
+      </main>
+    </div>
   )
 }
 
