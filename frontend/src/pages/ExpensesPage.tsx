@@ -1,14 +1,6 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
-
-type Expense = {
-    id: number;
-    amount: number;
-    currency: string;
-    date: string;
-    category: string;
-    paymentMethod: string;
-    description: string;
-}
+import { type Expense } from "../types/expense";
+import { getExpenses, createExpense } from "../api/expensesApi";
 
 type NewExpenseForm = {
     amount: string;
@@ -39,8 +31,7 @@ function ExpensesPage() {
 
     async function fetchExpenses() {
         try {
-            const response = await fetch("http://localhost:3000/api/expenses");
-            const data = await response.json();
+            const data = await getExpenses();
             setExpenses(data);
         } catch (error) {
             console.error("Erreur fetch expenses:", error);
@@ -74,34 +65,24 @@ function ExpensesPage() {
         }
 
         try {
-            const response = await fetch("http://localhost:3000/api/expenses", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    amount: amountNumber,
-                    currency: form.currency || "EUR",
-                    date: form.date,
-                    category: form.category,
-                    paymentMethod: form.paymentMethod || "Inconnu",
-                    description: form.description || "",
-                }),
+            const createdExpense = await createExpense({
+                amount: amountNumber,
+                currency: form.currency || "EUR",
+                date: form.date,
+                category: form.category,
+                paymentMethod: form.paymentMethod || "Inconnu",
+                description: form.description || "",
             });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                setErrorMessage(errorData.error || "Erreur lors de la création de la dépense.");
-                return;
-            }
-
-            const createdExpense: Expense = await response.json();
 
             setExpenses((prevExpenses) => [createdExpense, ...prevExpenses]);
             setForm(INITIAL_FORM_STATE);
-        } catch(error) {
+        } catch (error) {
             console.error("Erreur POST /api/expenses:", error);
-            setErrorMessage("Impossible d'enregistrer la dépense (problème réseau ?).");
+            setErrorMessage(
+                error instanceof Error
+                ? error.message
+                : "Impossible d'enregistrer la dépense."
+            );
         }
     }
 

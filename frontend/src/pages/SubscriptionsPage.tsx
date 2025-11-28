@@ -1,14 +1,6 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
-
-type Subscription = {
-    id: number;
-    name: string;
-    price: number;
-    currency: string;
-    frequency: string;
-    nextBillingDate: string;
-    description: string;
-};
+import { type Subscription } from "../types/subscription";
+import { getSubscriptions, createSubscription } from "../api/subscriptionsApi";
 
 type NewSubscriptionForm = {
     name: string;
@@ -39,13 +31,13 @@ function SubscriptionsPage() {
     
     async function fetchSubscriptions() {
         try {
-            const response = await fetch("http://localhost:3000/api/subscriptions");
-            const data = await response.json();
-            setSubscriptions(data)
+            const data = await getSubscriptions();
+            setSubscriptions(data);
         } catch (error) {
             console.error("Erreur fetch subscriptions:", error);
         }
     }
+
 
     function handleInputChange(
         event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -74,34 +66,24 @@ function SubscriptionsPage() {
         }
 
         try {
-            const response = await fetch("http://localhost:3000/api/subscriptions", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    name: form.name,
-                    price: priceNumber,
-                    currency: form.currency || "EUR",
-                    frequency: form.frequency,
-                    nextBillingDate: form.nextBillingDate,
-                    description: form.description || "",
-                }),
+            const createdSubscription = await createSubscription({
+                name: form.name,
+                price: priceNumber,
+                currency: form.currency || "EUR",
+                frequency: form.frequency,
+                nextBillingDate: form.nextBillingDate,
+                description: form.description || "",
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                setErrorMessage(errorData.error || "Erreur lors de la création de l'abonnement.");
-                return;
-            }
-
-            const createdSubscription: Subscription = await response.json();
-
-            setSubscriptions((prevSubscription) => [createdSubscription, ...prevSubscription]);
+            setSubscriptions((prev) => [createdSubscription, ...prev]);
             setForm(INITIAL_FORM_STATE);
-        } catch(error) {
+        } catch (error) {
             console.error("Erreur POST /api/subscriptions:", error);
-            setErrorMessage("Impossible d'enregistrer l'abonnement (problème réseau ?).");
+            setErrorMessage(
+                error instanceof Error
+                ? error.message
+                : "Impossible d'enregistrer l'abonnement."
+            );
         }
     }
 
