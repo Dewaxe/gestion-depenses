@@ -2,6 +2,7 @@ import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { type Expense } from "../types/expense";
 import { getExpenses, createExpense } from "../api/expensesApi";
 import Card from "../components/Card";
+import PageTitle from "../components/PageTitle";
 
 type NewExpenseForm = {
     amount: string;
@@ -89,7 +90,11 @@ function ExpensesPage() {
 
     return (
         <div>
-            <h1>Dépenses</h1>
+            <PageTitle
+                title="Dépenses"
+                subtitle="Suivez vos dépenses et ajoutez-en de nouvelles."
+            />
+            
             <Card>
                 <h2 style={{ marginBottom: "1rem" }}>Ajouter une dépense</h2>
 
@@ -98,7 +103,7 @@ function ExpensesPage() {
                 )}
 
                 <form onSubmit={handleSubmit}>
-                    <div style={{ marginBottom: "0.5rem" }}>
+                    <div className="form-group">
                         <label>
                             Montant *<br />
                             <input
@@ -112,7 +117,7 @@ function ExpensesPage() {
                         </label>
                     </div>
 
-                    <div style={{ marginBottom: "0.5rem" }}>
+                    <div className="form-group">
                         <label>
                             Devise<br />
                             <select 
@@ -126,7 +131,7 @@ function ExpensesPage() {
                         </label>
                     </div>
 
-                    <div style={{ marginBottom: "0.5rem" }}>
+                    <div className="form-group">
                         <label>
                             Date *<br />
                             <input
@@ -138,7 +143,7 @@ function ExpensesPage() {
                         </label>
                     </div>
 
-                    <div style={{ marginBottom: "0.5rem" }}>
+                    <div className="form-group">
                         <label>
                             Catégorie *<br />
                             <input
@@ -151,7 +156,7 @@ function ExpensesPage() {
                         </label>
                     </div>
 
-                    <div style={{ marginBottom: "0.5rem" }}>
+                    <div className="form-group">
                         <label>
                             Moyen de paiement<br />
                             <input
@@ -164,7 +169,7 @@ function ExpensesPage() {
                         </label>
                     </div>
 
-                    <div style={{ marginBottom: "0.5rem" }}>
+                    <div className="form-group">
                         <label>
                             Description<br />
                             <textarea
@@ -176,7 +181,7 @@ function ExpensesPage() {
                         </label>
                     </div>
 
-                    <button type="submit">Enregistrer la dépense</button>
+                    <button type="submit" className="btn">Enregistrer la dépense</button>
                 </form>
             </Card>
 
@@ -184,18 +189,29 @@ function ExpensesPage() {
                 {expenses.length === 0 ? (
                     <p>Aucune dépense pour le moment.</p>
                 ) : (
-                    <ul>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                         {expenses.map((expense) => (
-                            <li key={expense.id} style={{marginBottom: "1rem"}}>
-                                <strong>{expense.category}</strong> - {expense.amount} {expense.currency}<br />
-                                <small>Date : {expense.date}</small><br />
-                                <small>Moyen de paiement : {expense.paymentMethod}</small><br />
+                            <Card key={expense.id}>
+                                <div className="list-item-title">
+                                    {expense.category} — {expense.amount} {expense.currency}
+                                </div>
+
+                                <div className="list-item-meta">
+                                    Date : {expense.date}
+                                </div>
+
+                                <div className="list-item-meta">
+                                    Moyen de paiement : {expense.paymentMethod}
+                                </div>
+
                                 {expense.description && (
-                                    <small>Description : {expense.description}</small>
+                                    <div className="list-item-meta">
+                                        Description : {expense.description}
+                                    </div>
                                 )}
-                            </li>
+                            </Card>
                         ))}
-                    </ul>
+                    </div>
                 )}
             </Card>
         </div>

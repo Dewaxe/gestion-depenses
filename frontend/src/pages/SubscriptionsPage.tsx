@@ -2,6 +2,7 @@ import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { type Subscription } from "../types/subscription";
 import { getSubscriptions, createSubscription } from "../api/subscriptionsApi";
 import Card from "../components/Card";
+import PageTitle from "../components/PageTitle";
 
 type NewSubscriptionForm = {
     name: string;
@@ -90,7 +91,11 @@ function SubscriptionsPage() {
 
     return (
         <div>
-            <h1>Abonnements</h1>
+            <PageTitle
+                title="Abonnements"
+                subtitle="Gérez vos abonnements récurrents et leurs échéances."
+            />
+
 
             <Card>
                 <h2 style={{ marginBottom: "1rem" }}>Ajouter un abonnement</h2>
@@ -98,7 +103,7 @@ function SubscriptionsPage() {
                 {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
 
                 <form onSubmit={handleSubmit}>
-                    <div style={{ marginBottom: "0.5rem" }}>
+                    <div className="form-group">
                         <label>
                             Nom du service *<br />
                             <input
@@ -111,7 +116,7 @@ function SubscriptionsPage() {
                         </label>
                     </div>
 
-                    <div style={{ marginBottom: "0.5rem" }}>
+                    <div className="form-group">
                         <label>
                             Prix *<br />
                             <input
@@ -125,7 +130,7 @@ function SubscriptionsPage() {
                         </label>
                     </div>
 
-                    <div style={{ marginBottom: "0.5rem" }}>
+                    <div className="form-group">
                         <label>
                             Devise<br />
                             <select 
@@ -139,7 +144,7 @@ function SubscriptionsPage() {
                         </label>
                     </div>
 
-                    <div style={{ marginBottom: "0.5rem" }}>
+                    <div className="form-group">
                         <label>
                             Fréquence *<br />
                             <select 
@@ -153,7 +158,7 @@ function SubscriptionsPage() {
                         </label>
                     </div>
 
-                    <div style={{ marginBottom: "0.5rem" }}>
+                    <div className="form-group">
                         <label>
                             Prochaine échéance *<br />
                             <input
@@ -165,7 +170,7 @@ function SubscriptionsPage() {
                         </label>
                     </div>
 
-                    <div style={{ marginBottom: "0.5rem" }}>
+                    <div className="form-group">
                         <label>
                             Description<br />
                             <textarea
@@ -177,7 +182,7 @@ function SubscriptionsPage() {
                         </label>
                     </div>
 
-                    <button type="submit">Enregistrer l'abonnement</button>
+                    <button type="submit" className="btn">Enregistrer l'abonnement</button>
                 </form>
             </Card>
 
@@ -185,17 +190,17 @@ function SubscriptionsPage() {
                 {subscriptions.length === 0 ? (
                     <p>Aucun abonnement pour le moment.</p>
                 ) : (
-                    <ul>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                         {subscriptions.map((sub) => (
-                            <li key={sub.id} style={{marginBottom: "1rem"}}>
-                                <strong>{sub.name}</strong> - {sub.price} {sub.currency} ({sub.frequency})<br />
-                                <small>Prochaine échéance : {sub.nextBillingDate}</small><br />
+                            <Card key={sub.id}>
+                                <div className="list-item-title">{sub.name} - {sub.price} {sub.currency} ({sub.frequency})</div>
+                                <div className="list-item-meta">Prochaine échéance : {sub.nextBillingDate}</div>
                                 {sub.description && (
-                                    <small>Description : {sub.description}</small>
+                                    <div className="list-item-meta">Description : {sub.description}</div>
                                 )}
-                            </li>
+                            </Card>
                         ))}
-                    </ul>
+                    </div>
                 )}
             </Card>
         </div>
