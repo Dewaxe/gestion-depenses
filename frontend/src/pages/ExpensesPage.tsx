@@ -1,6 +1,7 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { type Expense } from "../types/expense";
 import { getExpenses, createExpense } from "../api/expensesApi";
+import Card from "../components/Card";
 
 type NewExpenseForm = {
     amount: string;
@@ -89,9 +90,8 @@ function ExpensesPage() {
     return (
         <div>
             <h1>Dépenses</h1>
-
-            <section style={{ marginBottom: "2rem" }}>
-                <h2>Ajouter une dépense</h2>
+            <Card>
+                <h2 style={{ marginBottom: "1rem" }}>Ajouter une dépense</h2>
 
                 {errorMessage && (
                     <p style={{ color: "red" }}>{errorMessage}</p>
@@ -178,9 +178,9 @@ function ExpensesPage() {
 
                     <button type="submit">Enregistrer la dépense</button>
                 </form>
-            </section>
+            </Card>
 
-            <section>
+            <Card>
                 {expenses.length === 0 ? (
                     <p>Aucune dépense pour le moment.</p>
                 ) : (
@@ -197,7 +197,7 @@ function ExpensesPage() {
                         ))}
                     </ul>
                 )}
-            </section>
+            </Card>
         </div>
     )
 }

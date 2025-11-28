@@ -1,37 +1,47 @@
-import { Routes, Route, Link } from 'react-router-dom'
-import HomePage from './pages/HomePage'
-import ExpensesPage from './pages/ExpensesPage'
-import SubscriptionsPage from './pages/SubscriptionsPage'
-
+import { Outlet, Link } from "react-router-dom";
 
 function App() {
   return (
     <div>
-      <header>
-        <nav>
-          <ul style={{ display: 'flex', gap: '1rem', listStyle: 'none' }}>
-            <li>
-              <Link to='/'>Accueil</Link>
-            </li>
-            <li>
-              <Link to='/expenses'>Dépenses</Link>
-            </li>
-            <li>
-              <Link to='/subscriptions'>Abonnements</Link>
-            </li>
-          </ul>
-        </nav>
+      <header
+        style={{
+          backgroundColor: "white",
+          borderBottom: "1px solid #ddd",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "800px",
+            margin: "0 auto",
+            padding: "1rem 1rem",
+          }}
+        >
+          <nav
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: "2rem",
+              fontSize: "1.1rem",
+            }}
+          >
+            <Link to="/">Accueil</Link>
+            <Link to="/expenses">Dépenses</Link>
+            <Link to="/subscriptions">Abonnements</Link>
+          </nav>
+        </div>
       </header>
 
-      <main>
-        <Routes>
-          <Route path='/' element={<HomePage />} />
-          <Route path='/expenses' element={<ExpensesPage />} />
-          <Route path='/subscriptions' element={<SubscriptionsPage />} />
-        </Routes>
+      <main
+        style={{
+          maxWidth: "800px",
+          margin: "0 auto",
+          padding: "2rem 1rem 4rem 1rem",
+        }}
+      >
+        <Outlet />
       </main>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

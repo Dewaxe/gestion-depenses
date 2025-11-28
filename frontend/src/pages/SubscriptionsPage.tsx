@@ -1,6 +1,7 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { type Subscription } from "../types/subscription";
 import { getSubscriptions, createSubscription } from "../api/subscriptionsApi";
+import Card from "../components/Card";
 
 type NewSubscriptionForm = {
     name: string;
@@ -89,98 +90,98 @@ function SubscriptionsPage() {
 
     return (
         <div>
-            <section>
-                <h1>Abonnements</h1>
+            <h1>Abonnements</h1>
 
-                <section style={{ marginBottom: "2rem" }}>
-                    <h2>Ajouter un abonnement</h2>
+            <Card>
+                <h2 style={{ marginBottom: "1rem" }}>Ajouter un abonnement</h2>
 
-                    {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+                {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
 
-                    <form onSubmit={handleSubmit}>
-                        <div style={{ marginBottom: "0.5rem" }}>
-                            <label>
-                                Nom du service *<br />
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={form.name}
-                                    onChange={handleInputChange}
-                                    placeholder="Netflix, Spotify, ..."
-                                />
-                            </label>
-                        </div>
+                <form onSubmit={handleSubmit}>
+                    <div style={{ marginBottom: "0.5rem" }}>
+                        <label>
+                            Nom du service *<br />
+                            <input
+                                type="text"
+                                name="name"
+                                value={form.name}
+                                onChange={handleInputChange}
+                                placeholder="Netflix, Spotify, ..."
+                            />
+                        </label>
+                    </div>
 
-                        <div style={{ marginBottom: "0.5rem" }}>
-                            <label>
-                                Prix *<br />
-                                <input
-                                    type="number"
-                                    name="price"
-                                    value={form.price}
-                                    onChange={handleInputChange}
-                                    step="0.01"
-                                    min="0"
-                                />
-                            </label>
-                        </div>
+                    <div style={{ marginBottom: "0.5rem" }}>
+                        <label>
+                            Prix *<br />
+                            <input
+                                type="number"
+                                name="price"
+                                value={form.price}
+                                onChange={handleInputChange}
+                                step="0.01"
+                                min="0"
+                            />
+                        </label>
+                    </div>
 
-                        <div style={{ marginBottom: "0.5rem" }}>
-                            <label>
-                                Devise<br />
-                                <select 
-                                    name="currency"
-                                    value={form.currency}
-                                    onChange={handleInputChange}
-                                >
-                                    <option value="EUR">EUR</option>
-                                    <option value="USD">USD</option>
-                                </select>
-                            </label>
-                        </div>
+                    <div style={{ marginBottom: "0.5rem" }}>
+                        <label>
+                            Devise<br />
+                            <select 
+                                name="currency"
+                                value={form.currency}
+                                onChange={handleInputChange}
+                            >
+                                <option value="EUR">EUR</option>
+                                <option value="USD">USD</option>
+                            </select>
+                        </label>
+                    </div>
 
-                        <div style={{ marginBottom: "0.5rem" }}>
-                            <label>
-                                Fréquence *<br />
-                                <select 
-                                    name="frequency"
-                                    value={form.frequency}
-                                    onChange={handleInputChange}
-                                >
-                                    <option value="monthly">Mensuel</option>
-                                    <option value="yearly">Annuel</option>
-                                </select>
-                            </label>
-                        </div>
+                    <div style={{ marginBottom: "0.5rem" }}>
+                        <label>
+                            Fréquence *<br />
+                            <select 
+                                name="frequency"
+                                value={form.frequency}
+                                onChange={handleInputChange}
+                            >
+                                <option value="monthly">Mensuel</option>
+                                <option value="yearly">Annuel</option>
+                            </select>
+                        </label>
+                    </div>
 
-                        <div style={{ marginBottom: "0.5rem" }}>
-                            <label>
-                                Prochaine échéance *<br />
-                                <input
-                                    type="date"
-                                    name="nextBillingDate"
-                                    value={form.nextBillingDate}
-                                    onChange={handleInputChange}
-                                />
-                            </label>
-                        </div>
+                    <div style={{ marginBottom: "0.5rem" }}>
+                        <label>
+                            Prochaine échéance *<br />
+                            <input
+                                type="date"
+                                name="nextBillingDate"
+                                value={form.nextBillingDate}
+                                onChange={handleInputChange}
+                            />
+                        </label>
+                    </div>
 
-                        <div style={{ marginBottom: "0.5rem" }}>
-                            <label>
-                                Description<br />
-                                <textarea
-                                    name="description"
-                                    value={form.description}
-                                    onChange={handleInputChange}
-                                    rows={2}
-                                />
-                            </label>
-                        </div>
+                    <div style={{ marginBottom: "0.5rem" }}>
+                        <label>
+                            Description<br />
+                            <textarea
+                                name="description"
+                                value={form.description}
+                                onChange={handleInputChange}
+                                rows={2}
+                            />
+                        </label>
+                    </div>
 
-                        <button type="submit">Enregistrer l'abonnement</button>
-                    </form>
-                </section>
-                
+                    <button type="submit">Enregistrer l'abonnement</button>
+                </form>
+            </Card>
+
+            <Card>
                 {subscriptions.length === 0 ? (
                     <p>Aucun abonnement pour le moment.</p>
                 ) : (
@@ -196,7 +197,7 @@ function SubscriptionsPage() {
                         ))}
                     </ul>
                 )}
-            </section>
+            </Card>
         </div>
     );
 }
