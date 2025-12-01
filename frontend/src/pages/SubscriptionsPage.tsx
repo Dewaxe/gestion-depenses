@@ -93,7 +93,7 @@ function SubscriptionsPage() {
         <div>
             <PageTitle
                 title="Abonnements"
-                subtitle="Gérez vos abonnements récurrents et leurs échéances."
+                subtitle="Gérez vos abonnements récurrents et leurs échéances"
             />
 
 

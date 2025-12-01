@@ -92,7 +92,7 @@ function ExpensesPage() {
         <div>
             <PageTitle
                 title="Dépenses"
-                subtitle="Suivez vos dépenses et ajoutez-en de nouvelles."
+                subtitle="Suivez vos dépenses et ajoutez-en de nouvelles"
             />
             
             <Card>

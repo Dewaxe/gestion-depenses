@@ -70,7 +70,7 @@ function HomePage() {
     <div>
       <PageTitle
         title="Tableau de bord"
-        subtitle="Vued'ensemble de vos dépenses et abonnements"
+        subtitle="Vue d'ensemble de vos dépenses et abonnements"
       />
 
       {loading && <p>Chargement du tableau de bord...</p>}
