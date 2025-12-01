@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const db = require("./db");
+require("./db");
 const expensesRoutes = require("./routes/expensesRoutes");
 const subscriptionsRoutes = require("./routes/subscriptionsRoutes");
 

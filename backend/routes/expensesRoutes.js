@@ -1,25 +1,19 @@
 const express = require("express");
-const db = require("../db");
-const router = express.Router();
+const { getAllExpenses, createExpense } = require("../repositories/expensesRepository");
 
+const router = express.Router();
 
 // GET /api/expenses
 router.get("/", (req, res) => {
-    const statement = db.prepare(`
-        SELECT
-        id,
-        amount,
-        currency,
-        date,
-        category,
-        payment_method AS paymentMethod,
-        description
-        FROM expenses
-        ORDER BY date DESC, id DESC
-    `);
-
-    const rows = statement.all();
-    res.json(rows);
+    try {
+        const rows = getAllExpenses();
+        res.json(rows);
+    } catch (error) {
+        console.error("Erreur getAllExpenses:", error);
+        res
+            .status(500)
+            .json({ error: "Erreur serveur lors de la récupération des dépenses." });
+    }
 });
 
 // POST /api/expenses
@@ -28,35 +22,25 @@ router.post("/", (req, res) => {
 
     if (amount == null || !date || !category) {
         return res.status(400).json({
-        error: "amount, date et category sont obligatoires",
+            error: "amount, date et category sont obligatoires",
         });
     }
 
-    const insertStatement = db.prepare(`
-        INSERT INTO expenses (amount, currency, date, category, payment_method, description)
-        VALUES (?, ?, ?, ?, ?, ?)
-    `);
+    try {
+        const newExpense = createExpense({
+            amount,
+            currency,
+            date,
+            category,
+            paymentMethod,
+            description,
+        });
 
-    const info = insertStatement.run(
-        amount,
-        currency || "EUR",
-        date,
-        category,
-        paymentMethod || "Inconnu",
-        description || ""
-    );
-
-    const newExpense = {
-        id: info.lastInsertRowid,
-        amount,
-        currency: currency || "EUR",
-        date,
-        category,
-        paymentMethod: paymentMethod || "Inconnu",
-        description: description || "",
-    };
-
-    res.status(201).json(newExpense);
+        res.status(201).json(newExpense);
+    } catch (error) {
+        console.error("Erreur createExpense:", error);
+        res.status(500).json({ error: "Erreur serveur lors de la création de la dépense." });
+    }
 });
 
 module.exports = router;
