@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import PageTitle from "../components/PageTitle";
 import Card from "../components/Card";
 import { type Expense } from "../types/expense";
@@ -86,6 +86,13 @@ function HomePage() {
             <h2 style={{ marginBottom: "1rem" }}>Vue d'ensemble</h2>
 
             <div className="dashboard-grid">
+              <div>
+                <div className="stat-card-title">Total des dépenses</div>
+                <div className="stat-card-value">
+                  {totalExpenses.toFixed(2)} €
+                </div>
+              </div>
+
               <div>
                 <div className="stat-card-title">Dépenses ce mois-ci</div>
                 <div className="stat-card-value">
