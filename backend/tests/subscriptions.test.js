@@ -53,4 +53,74 @@ describe("API /api/subscriptions", () => {
         expect(response.status).toBe(400);
         expect(response.body).toHaveProperty("error");
     });
+
+    test("PUT /api/subscriptions/:id doit mettre à jour un abonnement existant", async () => {
+        const createPayload = {
+            name: "Test PUT sub",
+            price: 9.99,
+            currency: "EUR",
+            frequency: "monthly",
+            nextBillingDate: "2025-03-10",
+            description: "Avant mise à jour",
+        };
+
+        const createResponse = await request(app)
+            .post("/api/subscriptions")
+            .send(createPayload)
+            .set("Content-Type", "application/json");
+
+        expect(createResponse.status).toBe(201);
+        const createdId = createResponse.body.id;
+
+        const updatePayload = {
+            name: "Test PUT sub modifié",
+            price: 19.99,
+            currency: "EUR",
+            frequency: "yearly",
+            nextBillingDate: "2025-04-01",
+            description: "Après mise à jour",
+        };
+
+        const updateResponse = await request(app)
+            .put(`/api/subscriptions/${createdId}`)
+            .send(updatePayload)
+            .set("Content-Type", "application/json");
+
+        expect(updateResponse.status).toBe(200);
+        expect(updateResponse.body.id).toBe(createdId);
+        expect(updateResponse.body.name).toBe(updatePayload.name);
+        expect(updateResponse.body.price).toBe(updatePayload.price);
+        expect(updateResponse.body.frequency).toBe(updatePayload.frequency);
+        expect(updateResponse.body.nextBillingDate).toBe(updatePayload.nextBillingDate);
+    });
+
+    test("DELETE /api/subscriptions/:id doit supprimer un abonnement existant", async () => {
+        const createPayload = {
+            name: "Test DELETE sub",
+            price: 4.99,
+            currency: "EUR",
+            frequency: "monthly",
+            nextBillingDate: "2025-03-15",
+            description: "À supprimer",
+        };
+
+        const createResponse = await request(app)
+            .post("/api/subscriptions")
+            .send(createPayload)
+            .set("Content-Type", "application/json");
+
+        expect(createResponse.status).toBe(201);
+        const createdId = createResponse.body.id;
+
+        const deleteResponse = await request(app).delete(
+            `/api/subscriptions/${createdId}`
+        );
+
+        expect(deleteResponse.status).toBe(204);
+
+        const deleteAgainResponse = await request(app).delete(
+            `/api/subscriptions/${createdId}`
+        );
+        expect(deleteAgainResponse.status).toBe(404);
+    });
 });

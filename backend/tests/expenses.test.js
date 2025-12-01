@@ -49,4 +49,73 @@ describe("API /api/expenses", () => {
         expect(response.status).toBe(400);
         expect(response.body).toHaveProperty("error");
     });
+
+    test("PUT /api/expenses/:id doit mettre à jour une dépense existante", async () => {
+        const createPayload = {
+            amount: 10,
+            currency: "EUR",
+            date: "2025-02-20",
+            category: "Test PUT",
+            paymentMethod: "Carte",
+            description: "Avant mise à jour",
+        };
+
+        const createResponse = await request(app)
+            .post("/api/expenses")
+            .send(createPayload)
+            .set("Content-Type", "application/json");
+
+        expect(createResponse.status).toBe(201);
+        const createdId = createResponse.body.id;
+
+        const updatePayload = {
+            amount: 99.99,
+            currency: "EUR",
+            date: "2025-02-21",
+            category: "Test PUT modifié",
+            paymentMethod: "Espèces",
+            description: "Après mise à jour",
+        };
+
+        const updateResponse = await request(app)
+            .put(`/api/expenses/${createdId}`)
+            .send(updatePayload)
+            .set("Content-Type", "application/json");
+
+        expect(updateResponse.status).toBe(200);
+        expect(updateResponse.body.id).toBe(createdId);
+        expect(updateResponse.body.amount).toBe(updatePayload.amount);
+        expect(updateResponse.body.category).toBe(updatePayload.category);
+        expect(updateResponse.body.paymentMethod).toBe(updatePayload.paymentMethod);
+    });
+
+    test("DELETE /api/expenses/:id doit supprimer une dépense existante", async () => {
+        const createPayload = {
+            amount: 5,
+            currency: "EUR",
+            date: "2025-02-22",
+            category: "Test DELETE",
+            paymentMethod: "Carte",
+            description: "À supprimer",
+        };
+
+        const createResponse = await request(app)
+            .post("/api/expenses")
+            .send(createPayload)
+            .set("Content-Type", "application/json");
+
+        expect(createResponse.status).toBe(201);
+        const createdId = createResponse.body.id;
+
+        const deleteResponse = await request(app).delete(
+            `/api/expenses/${createdId}`
+        );
+
+        expect(deleteResponse.status).toBe(204);
+
+        const deleteAgainResponse = await request(app).delete(
+            `/api/expenses/${createdId}`
+        );
+        expect(deleteAgainResponse.status).toBe(404);
+    });
 });
