@@ -13,9 +13,10 @@ Application full-stack pour suivre ses **dépenses** et ses **abonnements**, ave
 
 ## 🖥️ Démo
 
-- **Frontend (Vercel)** : https://gestion-depenses-drab.vercel.app/  
-- **Backend API (Render)** : https://gestion-depenses-backend.onrender.com/api/expenses
-https://gestion-depenses-backend.onrender.com/api/subscriptions
+- **Frontend (Vercel)** : https://gestion-depenses-abonnements.vercel.app/  
+- **Backend API (Render)** :
+    - https://gestion-depenses-backend.onrender.com/api/expenses
+    - https://gestion-depenses-backend.onrender.com/api/subscriptions
 
 ---
 
