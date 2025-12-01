@@ -9,10 +9,7 @@ router.get("/", (req, res) => {
         const rows = getAllExpenses();
         res.json(rows);
     } catch (error) {
-        console.error("Erreur getAllExpenses:", error);
-        res
-            .status(500)
-            .json({ error: "Erreur serveur lors de la récupération des dépenses." });
+        next(error);
     }
 });
 
@@ -38,8 +35,7 @@ router.post("/", (req, res) => {
 
         res.status(201).json(newExpense);
     } catch (error) {
-        console.error("Erreur createExpense:", error);
-        res.status(500).json({ error: "Erreur serveur lors de la création de la dépense." });
+        next(error);
     }
 });
 

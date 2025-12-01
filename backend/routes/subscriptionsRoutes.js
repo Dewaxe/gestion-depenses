@@ -9,10 +9,7 @@ router.get("/", (req, res) => {
         const rows = getAllSubscriptions();
         res.json(rows);
     } catch (error) {
-        console.error("Erreur getAllSubscriptions:", error);
-        res
-            .status(500)
-            .json({ error: "Erreur serveur lors de la récupération des abonnements." });
+        next(error);
     }
 });
 
@@ -38,10 +35,7 @@ router.post("/", (req, res) => {
 
         res.status(201).json(newSubscription);
     } catch (error) {
-        console.error("Erreur createSubscription:", error);
-        res
-        .status(500)
-        .json({ error: "Erreur serveur lors de la création de l'abonnement." });
+        next(error);
     }
 });
 
