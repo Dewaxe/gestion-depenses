@@ -175,27 +175,24 @@ function ExpensesPage() {
 
     return (
         <div>
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-end",
-                    marginBottom: "1.5rem",
-                }}
-            >
-                <PageTitle
-                    title="Dépenses"
-                    subtitle="Suivez vos dépenses et ajoutez-en de nouvelles"
-                />
-                <button type="button" className="btn" onClick={openCreateModal}>
-                    + Ajouter une dépense
-                </button>
+            <div className="page-header">
+                <div className="page-header-title">
+                    <PageTitle
+                        title="Dépenses"
+                        subtitle="Suivez vos dépenses et ajoutez-en de nouvelles"
+                    />
+                </div>
+                <div className="page-header-action">
+                    <button type="button" className="btn" onClick={openCreateModal}>
+                        + Ajouter une dépense
+                    </button>
+                </div>
             </div>
             
             {loading && <p>Chargement des dépenses...</p>}
             {error && (
                 <Card>
-                <p style={{ color: "red" }}>{error}</p>
+                    <p className="error-text">{error}</p>
                 </Card>
             )}
             
@@ -203,28 +200,15 @@ function ExpensesPage() {
         <>
           {/* Liste des dépenses */}
           <Card>
-            <h2 style={{ marginBottom: "1rem" }}>Liste des dépenses</h2>
+            <h2 className="expenses-list-title">Liste des dépenses</h2>
 
             {expenses.length === 0 ? (
               <p>Aucune dépense pour le moment.</p>
             ) : (
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "1rem",
-                }}
-              >
+              <div className="expenses-list">
                 {expenses.map((expense) => (
                   <Card key={expense.id}>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "flex-start",
-                        marginBottom: "0.5rem",
-                      }}
-                    >
+                    <div className="expense-card-header">
                       <div>
                         <div className="list-item-title">
                           {expense.category} — {expense.amount}{" "}
@@ -274,12 +258,12 @@ function ExpensesPage() {
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h2 style={{ marginBottom: "1rem" }}>
-              {modalMode === "create" ? "Ajouter une dépense" : "Modifier la dépense"}
+            <h2 className="modal-title">
+                {modalMode === "create" ? "Ajouter une dépense" : "Modifier la dépense"}
             </h2>
 
             {formError && (
-              <p style={{ color: "red", marginBottom: "1rem" }}>{formError}</p>
+                <p className="error-text--spaced">{formError}</p>
             )}
 
             <form onSubmit={handleSubmit}>
@@ -351,14 +335,7 @@ function ExpensesPage() {
                 />
               </div>
 
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  gap: "0.75rem",
-                  marginTop: "1rem",
-                }}
-              >
+              <div className="modal-actions">
                 <button
                   type="button"
                   className="btn-secondary"
