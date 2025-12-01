@@ -1,10 +1,10 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
-import { type Expense } from "../types/expense";
-import { getExpenses, createExpense } from "../api/expensesApi";
+import { type Expense, type ExpenseInput } from "../types/expense";
+import { getExpenses, createExpense, updateExpense, deleteExpense } from "../api/expensesApi";
 import Card from "../components/Card";
 import PageTitle from "../components/PageTitle";
 
-type NewExpenseForm = {
+type ExpenseFormState = {
     amount: string;
     currency: string;
     date: string;
@@ -13,7 +13,7 @@ type NewExpenseForm = {
     description: string;
 }
 
-const INITIAL_FORM_STATE: NewExpenseForm = {
+const INITIAL_FORM_STATE: ExpenseFormState = {
     amount: "",
     currency: "EUR",
     date: "",
@@ -22,10 +22,20 @@ const INITIAL_FORM_STATE: NewExpenseForm = {
     description: "",
 };
 
+type ModalMode = "create" | "edit";
+
+
 function ExpensesPage() {
     const [expenses, setExpenses] = useState<Expense[]>([]);
-    const [form, setForm] = useState<NewExpenseForm>(INITIAL_FORM_STATE);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [form, setForm] = useState<ExpenseFormState>(INITIAL_FORM_STATE);
+    const [error, setError] = useState<string | null>(null);
+
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [modalMode, setModalMode] = useState<ModalMode>("create");
+    const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+    const [formError, setFormError] = useState<string | null>(null);
+    const [formSubmitting, setFormSubmitting] = useState<boolean>(false);
 
     useEffect(() => {
         fetchExpenses();
@@ -33,11 +43,56 @@ function ExpensesPage() {
 
     async function fetchExpenses() {
         try {
+            setLoading(true);
             const data = await getExpenses();
             setExpenses(data);
-        } catch (error) {
-            console.error("Erreur fetch expenses:", error);
+            setError(null);
+        } catch (err) {
+            console.error("Erreur chargement dépenses:", err);
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "Erreur lors du chargement des dépenses."
+            );
+        } finally {
+            setLoading(false);
         }
+    }
+
+    function openCreateModal() {
+        setModalMode("create");
+        setEditingExpense(null);
+        setForm({
+            amount: "",
+            currency: "EUR",
+            date: "",
+            category: "",
+            paymentMethod: "",
+            description: "",
+        })
+        setFormError(null);
+        setIsModalOpen(true);
+    }
+
+    function openEditModal(expense: Expense) {
+        setModalMode("edit");
+        setEditingExpense(expense);
+        setForm({
+            amount: String(expense.amount),
+            currency: expense.currency,
+            date: expense.date,
+            category: expense.category,
+            paymentMethod: expense.paymentMethod,
+            description: expense.description,
+        })
+        setFormError(null);
+        setIsModalOpen(true);
+    }
+
+    function closeModal() {
+        setIsModalOpen(false);
+        setEditingExpense(null);
+        setFormError(null);
     }
 
     function handleInputChange(
@@ -53,168 +108,278 @@ function ExpensesPage() {
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        setErrorMessage(null);
 
         if (!form.amount || !form.date || !form.category) {
-            setErrorMessage("Les champs montant, date et catégorie sont obligatoires.");
+            setFormError("Les champs Montant, Date et Catégorie sont obligatoires.");
             return;
         }
 
         const amountNumber = Number(form.amount);
         if (Number.isNaN(amountNumber) || amountNumber <= 0) {
-            setErrorMessage("Le montant doit être positif.");
+            setError("Le montant doit être positif.");
+            return;
+        }
+
+        const payload: ExpenseInput = {
+            amount: amountNumber,
+            currency: form.currency || "EUR",
+            date: form.date,
+            category: form.category,
+            paymentMethod: form.paymentMethod || "Inconnu",
+            description: form.description || "",
+        };
+
+        try {
+            setFormSubmitting(true);
+            if (modalMode === "create") {
+                const created = await createExpense(payload);
+                setExpenses((prev) => [created, ...prev]);
+            } else if (modalMode === "edit" && editingExpense) {
+                const updated = await updateExpense(editingExpense.id, payload);
+                setExpenses((prev) =>
+                prev.map((exp) => (exp.id === updated.id ? updated : exp))
+                );
+            }
+
+            closeModal();
+        } catch (err) {
+            console.error("Erreur submit dépense:", err);
+            setFormError(
+                err instanceof Error
+                ? err.message
+                : "Erreur lors de l'enregistrement de la dépense."
+            );
+        } finally {
+            setFormSubmitting(false);
+        }
+    }
+
+    async function handleDelete(expense: Expense) {
+        const confirmed = window.confirm(
+            `Supprimer la dépense "${expense.category}" du ${expense.date} ?`
+        );
+        if (!confirmed) {
             return;
         }
 
         try {
-            const createdExpense = await createExpense({
-                amount: amountNumber,
-                currency: form.currency || "EUR",
-                date: form.date,
-                category: form.category,
-                paymentMethod: form.paymentMethod || "Inconnu",
-                description: form.description || "",
-            });
-
-            setExpenses((prevExpenses) => [createdExpense, ...prevExpenses]);
-            setForm(INITIAL_FORM_STATE);
-        } catch (error) {
-            console.error("Erreur POST /api/expenses:", error);
-            setErrorMessage(
-                error instanceof Error
-                ? error.message
-                : "Impossible d'enregistrer la dépense."
+            await deleteExpense(expense.id);
+            setExpenses((prev) => prev.filter((e) => e.id !== expense.id));
+        } catch (err) {
+            console.error("Erreur suppression dépense:", err);
+            alert(
+                "Erreur lors de la suppression de la dépense. Consultez la console pour plus de détails."
             );
         }
     }
 
     return (
         <div>
-            <PageTitle
-                title="Dépenses"
-                subtitle="Suivez vos dépenses et ajoutez-en de nouvelles"
-            />
+            <div
+                style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-end",
+                    marginBottom: "1.5rem",
+                }}
+            >
+                <PageTitle
+                    title="Dépenses"
+                    subtitle="Suivez vos dépenses et ajoutez-en de nouvelles"
+                />
+                <button type="button" className="btn" onClick={openCreateModal}>
+                    + Ajouter une dépense
+                </button>
+            </div>
             
-            <Card>
-                <h2 style={{ marginBottom: "1rem" }}>Ajouter une dépense</h2>
+            {loading && <p>Chargement des dépenses...</p>}
+            {error && (
+                <Card>
+                <p style={{ color: "red" }}>{error}</p>
+                </Card>
+            )}
+            
+            {!loading && !error && (
+        <>
+          {/* Liste des dépenses */}
+          <Card>
+            <h2 style={{ marginBottom: "1rem" }}>Liste des dépenses</h2>
 
-                {errorMessage && (
-                    <p style={{ color: "red" }}>{errorMessage}</p>
-                )}
+            {expenses.length === 0 ? (
+              <p>Aucune dépense pour le moment.</p>
+            ) : (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "1rem",
+                }}
+              >
+                {expenses.map((expense) => (
+                  <Card key={expense.id}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        marginBottom: "0.5rem",
+                      }}
+                    >
+                      <div>
+                        <div className="list-item-title">
+                          {expense.category} — {expense.amount}{" "}
+                          {expense.currency}
+                        </div>
+                        <div className="list-item-meta">
+                          Date : {expense.date} — Moyen de paiement :{" "}
+                          {expense.paymentMethod}
+                        </div>
+                        {expense.description && (
+                          <div className="list-item-meta">
+                            {expense.description}
+                          </div>
+                        )}
+                      </div>
 
-                <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label>
-                            Montant *<br />
-                            <input
-                                type="number"
-                                name="amount"
-                                value={form.amount}
-                                onChange={handleInputChange}
-                                step="0.01"
-                                min="0"
-                            />
-                        </label>
+                      <div>
+                        <button
+                          type="button"
+                          className="icon-button"
+                          onClick={() => openEditModal(expense)}
+                          aria-label="Modifier la dépense"
+                          title="Modifier"
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          type="button"
+                          className="icon-button"
+                          onClick={() => handleDelete(expense)}
+                          aria-label="Supprimer la dépense"
+                          title="Supprimer"
+                        >
+                          🗑️
+                        </button>
+                      </div>
                     </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </Card>
+        </>
+      )}
 
-                    <div className="form-group">
-                        <label>
-                            Devise<br />
-                            <select 
-                                name="currency"
-                                value={form.currency}
-                                onChange={handleInputChange}
-                            >
-                                <option value="EUR">EUR</option>
-                                <option value="USD">USD</option>
-                            </select>
-                        </label>
-                    </div>
+      {/* Modale pour Ajouter / Modifier une dépense */}
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2 style={{ marginBottom: "1rem" }}>
+              {modalMode === "create" ? "Ajouter une dépense" : "Modifier la dépense"}
+            </h2>
 
-                    <div className="form-group">
-                        <label>
-                            Date *<br />
-                            <input
-                                type="date"
-                                name="date"
-                                value={form.date}
-                                onChange={handleInputChange}
-                            />
-                        </label>
-                    </div>
+            {formError && (
+              <p style={{ color: "red", marginBottom: "1rem" }}>{formError}</p>
+            )}
 
-                    <div className="form-group">
-                        <label>
-                            Catégorie *<br />
-                            <input
-                                type="text"
-                                name="category"
-                                value={form.category}
-                                onChange={handleInputChange}
-                                placeholder="Courses, Logement, Transport, ..."
-                            />
-                        </label>
-                    </div>
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label htmlFor="amount">Montant *</label>
+                <input
+                  id="amount"
+                  name="amount"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={form.amount}
+                  onChange={handleInputChange}
+                />
+              </div>
 
-                    <div className="form-group">
-                        <label>
-                            Moyen de paiement<br />
-                            <input
-                                type="text"
-                                name="paymentMethod"
-                                value={form.paymentMethod}
-                                onChange={handleInputChange}
-                                placeholder="Carte, Espèces, Virement, ..."
-                            />
-                        </label>
-                    </div>
+              <div className="form-group">
+                <label htmlFor="currency">Devise</label>
+                <input
+                  id="currency"
+                  name="currency"
+                  type="text"
+                  value={form.currency}
+                  onChange={handleInputChange}
+                />
+              </div>
 
-                    <div className="form-group">
-                        <label>
-                            Description<br />
-                            <textarea
-                                name="description"
-                                value={form.description}
-                                onChange={handleInputChange}
-                                rows={2}
-                            />
-                        </label>
-                    </div>
+              <div className="form-group">
+                <label htmlFor="date">Date *</label>
+                <input
+                  id="date"
+                  name="date"
+                  type="date"
+                  value={form.date}
+                  onChange={handleInputChange}
+                />
+              </div>
 
-                    <button type="submit" className="btn">Enregistrer la dépense</button>
-                </form>
-            </Card>
+              <div className="form-group">
+                <label htmlFor="category">Catégorie *</label>
+                <input
+                  id="category"
+                  name="category"
+                  type="text"
+                  value={form.category}
+                  onChange={handleInputChange}
+                />
+              </div>
 
-            <Card>
-                {expenses.length === 0 ? (
-                    <p>Aucune dépense pour le moment.</p>
-                ) : (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                        {expenses.map((expense) => (
-                            <Card key={expense.id}>
-                                <div className="list-item-title">
-                                    {expense.category} — {expense.amount} {expense.currency}
-                                </div>
+              <div className="form-group">
+                <label htmlFor="paymentMethod">Moyen de paiement</label>
+                <input
+                  id="paymentMethod"
+                  name="paymentMethod"
+                  type="text"
+                  value={form.paymentMethod}
+                  onChange={handleInputChange}
+                />
+              </div>
 
-                                <div className="list-item-meta">
-                                    Date : {expense.date}
-                                </div>
+              <div className="form-group">
+                <label htmlFor="description">Description</label>
+                <textarea
+                  id="description"
+                  name="description"
+                  value={form.description}
+                  onChange={handleInputChange}
+                  rows={3}
+                />
+              </div>
 
-                                <div className="list-item-meta">
-                                    Moyen de paiement : {expense.paymentMethod}
-                                </div>
-
-                                {expense.description && (
-                                    <div className="list-item-meta">
-                                        Description : {expense.description}
-                                    </div>
-                                )}
-                            </Card>
-                        ))}
-                    </div>
-                )}
-            </Card>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: "0.75rem",
+                  marginTop: "1rem",
+                }}
+              >
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={closeModal}
+                  disabled={formSubmitting}
+                >
+                  Annuler
+                </button>
+                <button type="submit" className="btn" disabled={formSubmitting}>
+                  {formSubmitting
+                    ? "Enregistrement..."
+                    : modalMode === "create"
+                    ? "Enregistrer"
+                    : "Mettre à jour"}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
+      )}
+    </div>
     )
 }
 

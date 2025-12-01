@@ -8,7 +8,7 @@ export type Expense = {
     description: string;
 };
 
-export type NewExpensePayload = {
+export type ExpenseInput = {
     amount: number;
     currency: string;
     date: string;

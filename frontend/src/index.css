@@ -106,3 +106,100 @@ textarea:focus {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15); /* halo léger */
 }
+
+/* ----------------------
+    Dashboard 
+----------------------- */
+
+.dashboard-grid {
+  display: grid; /* Active CSS Grid */
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.stat-card-title {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 0.3rem;
+}
+
+.stat-card-value {
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.dashboard-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dashboard-list-item {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.dashboard-list-item:last-child {
+  border-bottom: none;
+}
+
+.dashboard-list-item-title {
+  font-weight: 500;
+}
+
+.dashboard-list-item-meta {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+
+/* Bouton d'icône (modifier / supprimer) */
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  margin-left: 0.25rem;
+  font-size: 1rem;
+}
+
+.icon-button:hover {
+  opacity: 0.8;
+}
+
+/* Variante de bouton secondaire (Annuler, Fermer, etc.) */
+.btn-secondary {
+  background-color: #e5e5e5;
+  color: #333;
+  font-size: 0.95rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+  width: fit-content;
+}
+
+.btn-secondary:hover {
+  background-color: #d4d4d4;
+}
+
+/* Overlay de modale */
+.modal-overlay {
+  position: fixed;
+  inset: 0; /* équivaut à top:0, right:0, bottom:0, left:0 */
+  background-color: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Contenu de modale */
+.modal-content {
+  background-color: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
