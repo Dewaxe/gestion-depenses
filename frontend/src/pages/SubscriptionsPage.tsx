@@ -194,7 +194,7 @@ function SubscriptionsPage() {
 
             {!loading && !error && (
                 <Card>
-                    <h2 className="subscriptions-list-title">Ajouter un abonnement</h2>
+                    <h2 className="subscriptions-list-title">Liste des abonnements</h2>
 
                     {subscriptions.length === 0 ? (
                         <p>Aucun abonnement pour le moment.</p>
