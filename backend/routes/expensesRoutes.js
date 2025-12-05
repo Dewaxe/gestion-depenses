@@ -19,7 +19,7 @@ router.get("/", (req, res) => {
 });
 
 // POST /api/expenses
-router.post("/", (req, res) => {
+router.post("/", (req, res, next) => {
     const { amount, currency, date, category, paymentMethod, description } = req.body;
 
     if (amount == null || !date || !category) {
@@ -29,7 +29,8 @@ router.post("/", (req, res) => {
     }
 
     try {
-        const newExpense = createExpense({
+        const userId = req.userId;
+        const newExpense = createExpense(userId, {
             amount,
             currency,
             date,

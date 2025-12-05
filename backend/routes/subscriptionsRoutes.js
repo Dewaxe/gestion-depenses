@@ -19,7 +19,7 @@ router.get("/", (req, res) => {
 });
 
 // POST /api/subscriptions
-router.post("/", (req, res) => {
+router.post("/", (req, res, next) => {
     const { name, price, currency, frequency, nextBillingDate, description } = req.body;
 
     if (!name || price == null || !frequency || !nextBillingDate) {
@@ -29,7 +29,8 @@ router.post("/", (req, res) => {
     }
 
     try {
-        const newSubscription = createSubscription({
+        const userId = req.userId;
+        const newSubscription = createSubscription(userId, {
             name,
             price,
             currency,

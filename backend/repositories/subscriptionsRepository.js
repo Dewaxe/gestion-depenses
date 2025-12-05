@@ -1,30 +1,32 @@
 const db = require("../db");
 
-function getAllSubscriptions() {
+function getAllSubscriptions(userId) {
     const statement = db.prepare(`
         SELECT
-        id,
-        name,
-        price,
-        currency,
-        frequency,
-        next_billing_date AS nextBillingDate,
-        description
+            id,
+            name,
+            price,
+            currency,
+            frequency,
+            next_billing_date AS nextBillingDate,
+            description
         FROM subscriptions
+        WHERE user_id = ?
         ORDER BY next_billing_date ASC, id ASC
     `);
 
-    const rows = statement.all();
+    const rows = statement.all(UserId);
     return rows;
 }
 
-function createSubscription({ name, price, currency, frequency, nextBillingDate, description }) {
+function createSubscription(userId, { name, price, currency, frequency, nextBillingDate, description }) {
     const insertStatement = db.prepare(`
-        INSERT INTO subscriptions (name, price, currency, frequency, next_billing_date, description)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO subscriptions (user_id, name, price, currency, frequency, next_billing_date, description)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
 
     const info = insertStatement.run(
+        userId,
         name,
         price,
         currency || "EUR",
@@ -46,7 +48,7 @@ function createSubscription({ name, price, currency, frequency, nextBillingDate,
     return newSubscription;
 }
 
-function updateSubscription(id, { name, price, currency, frequency, nextBillingDate, description }) {
+function updateSubscription(userId, id, { name, price, currency, frequency, nextBillingDate, description }) {
     const updateStatement = db.prepare(`
         UPDATE subscriptions
         SET
@@ -56,7 +58,7 @@ function updateSubscription(id, { name, price, currency, frequency, nextBillingD
             frequency = ?,
             next_billing_date = ?,
             description = ?
-        WHERE id = ?
+        WHERE id = ? AND user_id = ?
     `);
 
     const result = updateStatement.run(
@@ -66,7 +68,8 @@ function updateSubscription(id, { name, price, currency, frequency, nextBillingD
         frequency,
         nextBillingDate,
         description || "",
-        id
+        id,
+        userId
     );
 
     if (result.changes === 0) {
@@ -86,17 +89,17 @@ function updateSubscription(id, { name, price, currency, frequency, nextBillingD
         WHERE id = ?
     `);
 
-    const updatedSubscription = selectStatement.get(id);
+    const updatedSubscription = selectStatement.get(id, userId);
     return updatedSubscription;
 }
 
-function deleteSubscription(id) {
+function deleteSubscription(userId, id) {
     const deleteStatement = db.prepare(`
         DELETE FROM subscriptions
         WHERE id = ?
     `);
 
-    const result = deleteStatement.run(id);
+    const result = deleteStatement.run(id, userId);
 
     return result.changes > 0;
 }
