@@ -8,7 +8,7 @@ export type Subscription = {
     description: string;
 };
 
-export type NewSubscriptionPayload = {
+export type SubscriptionInput = {
     name: string;
     price: number;
     currency: string;

@@ -206,54 +206,32 @@ textarea:focus {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
 
-/* En-tête de page avec titre centré + action à droite */
-.page-header {
-  position: relative;
-  margin-bottom: 1.5rem;
-  text-align: center; /* centre le contenu textuel (PageTitle) */
-}
-
-/* Conteneur du bouton d'action dans l'en-tête */
-.page-header-action {
-  position: absolute;
-  right: 0;
-  bottom: 0; /* aligné avec la ligne de base du titre */
-}
 
 /* En-tête de page : titre centré + bouton à droite */
 .page-header {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
-  margin-bottom: 1.5rem;
   gap: 1rem;
-  flex-wrap: wrap; /* permet au bouton de passer à la ligne si besoin */
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
 }
 
 /* Conteneur du titre (PageTitle) */
 .page-header-title {
+  flex: 1 1 auto;
   text-align: center;
-}
-
-/* Conteneur du bouton */
-.page-header-action {
-  margin-left: auto; /* pousse le bouton vers la droite */
 }
 
 /* Sur les petits écrans on empile proprement */
 @media (max-width: 600px) {
   .page-header {
-    justify-content: space-between;
-    align-items: flex-start;
+    justify-content: center;
   }
 
   .page-header-title {
-    text-align: left;
     width: 100%;
-  }
-
-  .page-header-action {
-    margin-left: 0;
+    text-align: center;
   }
 }
 
@@ -268,6 +246,19 @@ textarea:focus {
 }
 
 .expense-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.subscriptions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.subscription-card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;

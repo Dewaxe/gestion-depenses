@@ -24,13 +24,11 @@ const INITIAL_FORM_STATE: ExpenseFormState = {
 
 type ModalMode = "create" | "edit";
 
-
 function ExpensesPage() {
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [form, setForm] = useState<ExpenseFormState>(INITIAL_FORM_STATE);
     const [error, setError] = useState<string | null>(null);
-
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [modalMode, setModalMode] = useState<ModalMode>("create");
     const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
@@ -158,9 +156,7 @@ function ExpensesPage() {
         const confirmed = window.confirm(
             `Supprimer la dépense "${expense.category}" du ${expense.date} ?`
         );
-        if (!confirmed) {
-            return;
-        }
+        if (!confirmed) return;
 
         try {
             await deleteExpense(expense.id);
@@ -177,10 +173,7 @@ function ExpensesPage() {
         <div>
             <div className="page-header">
                 <div className="page-header-title">
-                    <PageTitle
-                        title="Dépenses"
-                        subtitle="Suivez vos dépenses et ajoutez-en de nouvelles"
-                    />
+                    <PageTitle title="Dépenses" />
                 </div>
                 <div className="page-header-action">
                     <button type="button" className="btn" onClick={openCreateModal}>
@@ -190,6 +183,7 @@ function ExpensesPage() {
             </div>
             
             {loading && <p>Chargement des dépenses...</p>}
+
             {error && (
                 <Card>
                     <p className="error-text">{error}</p>
@@ -197,166 +191,162 @@ function ExpensesPage() {
             )}
             
             {!loading && !error && (
-        <>
-          {/* Liste des dépenses */}
-          <Card>
-            <h2 className="expenses-list-title">Liste des dépenses</h2>
+                <Card>
+                    <h2 className="expenses-list-title">Liste des dépenses</h2>
 
-            {expenses.length === 0 ? (
-              <p>Aucune dépense pour le moment.</p>
-            ) : (
-              <div className="expenses-list">
-                {expenses.map((expense) => (
-                  <Card key={expense.id}>
-                    <div className="expense-card-header">
-                      <div>
-                        <div className="list-item-title">
-                          {expense.category} — {expense.amount}{" "}
-                          {expense.currency}
+                    {expenses.length === 0 ? (
+                        <p>Aucune dépense pour le moment.</p>
+                    ) : (
+                        <div className="expenses-list">
+                            {expenses.map((expense) => (
+                                <Card key={expense.id}>
+                                    <div className="expense-card-header">
+                                        <div>
+                                            <div className="list-item-title">
+                                                {expense.category} — {expense.amount}{" "}
+                                                {expense.currency}
+                                            </div>
+                                            <div className="list-item-meta">
+                                                Date : {expense.date} — Moyen de paiement :{" "}
+                                                {expense.paymentMethod}
+                                            </div>
+                                            {expense.description && (
+                                                <div className="list-item-meta">
+                                                   {expense.description}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <button
+                                                type="button"
+                                                className="icon-button"
+                                                onClick={() => openEditModal(expense)}
+                                                aria-label="Modifier la dépense"
+                                                title="Modifier"
+                                            >
+                                                ✏️
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="icon-button"
+                                                onClick={() => handleDelete(expense)}
+                                                aria-label="Supprimer la dépense"
+                                                title="Supprimer"
+                                            >
+                                                🗑️
+                                            </button>
+                                        </div>
+                                    </div>
+                                </Card>
+                            ))}
                         </div>
-                        <div className="list-item-meta">
-                          Date : {expense.date} — Moyen de paiement :{" "}
-                          {expense.paymentMethod}
-                        </div>
-                        {expense.description && (
-                          <div className="list-item-meta">
-                            {expense.description}
-                          </div>
+                    )}
+                </Card>
+            )}
+
+            {isModalOpen && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2 className="modal-title">
+                            {modalMode === "create" ? "Ajouter une dépense" : "Modifier la dépense"}
+                        </h2>
+
+                        {formError && (
+                            <p className="error-text--spaced">{formError}</p>
                         )}
-                      </div>
 
-                      <div>
-                        <button
-                          type="button"
-                          className="icon-button"
-                          onClick={() => openEditModal(expense)}
-                          aria-label="Modifier la dépense"
-                          title="Modifier"
-                        >
-                          ✏️
-                        </button>
-                        <button
-                          type="button"
-                          className="icon-button"
-                          onClick={() => handleDelete(expense)}
-                          aria-label="Supprimer la dépense"
-                          title="Supprimer"
-                        >
-                          🗑️
-                        </button>
-                      </div>
+                        <form onSubmit={handleSubmit}>
+                            <div className="form-group">
+                                <label htmlFor="amount">Montant *</label>
+                                <input
+                                    id="amount"
+                                    name="amount"
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    value={form.amount}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="currency">Devise</label>
+                                <input
+                                    id="currency"
+                                    name="currency"
+                                    type="text"
+                                    value={form.currency}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="date">Date *</label>
+                                <input
+                                    id="date"
+                                    name="date"
+                                    type="date"
+                                    value={form.date}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="category">Catégorie *</label>
+                                <input
+                                    id="category"
+                                    name="category"
+                                    type="text"
+                                    value={form.category}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="paymentMethod">Moyen de paiement</label>
+                                <input
+                                    id="paymentMethod"
+                                    name="paymentMethod"
+                                    type="text"
+                                    value={form.paymentMethod}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="description">Description</label>
+                                <textarea
+                                    id="description"
+                                    name="description"
+                                    value={form.description}
+                                    onChange={handleInputChange}
+                                    rows={3}
+                                />
+                            </div>
+
+                            <div className="modal-actions">
+                                <button
+                                    type="button"
+                                    className="btn-secondary"
+                                    onClick={closeModal}
+                                    disabled={formSubmitting}
+                                >
+                                    Annuler
+                                </button>
+                                <button type="submit" className="btn" disabled={formSubmitting}>
+                                    {formSubmitting
+                                    ? "Enregistrement..."
+                                    : modalMode === "create"
+                                    ? "Enregistrer"
+                                    : "Mettre à jour"}
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                  </Card>
-                ))}
-              </div>
+                </div>
             )}
-          </Card>
-        </>
-      )}
-
-      {/* Modale pour Ajouter / Modifier une dépense */}
-      {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h2 className="modal-title">
-                {modalMode === "create" ? "Ajouter une dépense" : "Modifier la dépense"}
-            </h2>
-
-            {formError && (
-                <p className="error-text--spaced">{formError}</p>
-            )}
-
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label htmlFor="amount">Montant *</label>
-                <input
-                  id="amount"
-                  name="amount"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={form.amount}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="currency">Devise</label>
-                <input
-                  id="currency"
-                  name="currency"
-                  type="text"
-                  value={form.currency}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="date">Date *</label>
-                <input
-                  id="date"
-                  name="date"
-                  type="date"
-                  value={form.date}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="category">Catégorie *</label>
-                <input
-                  id="category"
-                  name="category"
-                  type="text"
-                  value={form.category}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="paymentMethod">Moyen de paiement</label>
-                <input
-                  id="paymentMethod"
-                  name="paymentMethod"
-                  type="text"
-                  value={form.paymentMethod}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="description">Description</label>
-                <textarea
-                  id="description"
-                  name="description"
-                  value={form.description}
-                  onChange={handleInputChange}
-                  rows={3}
-                />
-              </div>
-
-              <div className="modal-actions">
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  onClick={closeModal}
-                  disabled={formSubmitting}
-                >
-                  Annuler
-                </button>
-                <button type="submit" className="btn" disabled={formSubmitting}>
-                  {formSubmitting
-                    ? "Enregistrement..."
-                    : modalMode === "create"
-                    ? "Enregistrer"
-                    : "Mettre à jour"}
-                </button>
-              </div>
-            </form>
-          </div>
         </div>
-      )}
-    </div>
     )
 }
 

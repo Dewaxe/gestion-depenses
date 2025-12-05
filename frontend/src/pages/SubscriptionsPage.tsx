@@ -1,10 +1,10 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
-import { type Subscription } from "../types/subscription";
-import { getSubscriptions, createSubscription } from "../api/subscriptionsApi";
+import { type Subscription, type SubscriptionInput } from "../types/subscription";
+import { getSubscriptions, createSubscription, updateSubscription, deleteSubscription } from "../api/subscriptionsApi";
 import Card from "../components/Card";
 import PageTitle from "../components/PageTitle";
 
-type NewSubscriptionForm = {
+type SubscriptionFormState = {
     name: string;
     price: string;
     currency: string;
@@ -13,7 +13,7 @@ type NewSubscriptionForm = {
     description: string;
 };
 
-const INITIAL_FORM_STATE: NewSubscriptionForm = {
+const INITIAL_FORM_STATE: SubscriptionFormState = {
     name: "",
     price: "",
     currency: "EUR",
@@ -22,10 +22,19 @@ const INITIAL_FORM_STATE: NewSubscriptionForm = {
     description: "",
 };
 
+type ModalMode = "create" | "edit";
+
 function SubscriptionsPage() {
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-    const [form, setForm] = useState<NewSubscriptionForm>(INITIAL_FORM_STATE);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [form, setForm] = useState<SubscriptionFormState>(INITIAL_FORM_STATE);
+    const [error, setError] = useState<string | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [modalMode, setModalMode] = useState<ModalMode>("create");
+    const [editingSubscription, setEditingSubscription] = useState<Subscription | null>(null);
+    const [formError, setFormError] = useState<string | null>(null);
+    const [formSubmitting, setFormSubmitting] = useState<boolean>(false);
+    
 
     useEffect(() => {
         fetchSubscriptions();
@@ -33,11 +42,56 @@ function SubscriptionsPage() {
     
     async function fetchSubscriptions() {
         try {
+            setLoading(true);
             const data = await getSubscriptions();
             setSubscriptions(data);
-        } catch (error) {
-            console.error("Erreur fetch subscriptions:", error);
+            setError(null);
+        } catch (err) {
+            console.error("Erreur chargement abonnements:", err);
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "Erreur lors du chargement des abonnements."
+            );
+        } finally {
+            setLoading(false);
         }
+    }
+
+    function openCreateModal() {
+        setModalMode("create");
+        setEditingSubscription(null);
+        setForm({
+            name: "",
+            price: "",
+            currency: "EUR",
+            frequency: "",
+            nextBillingDate: "",
+            description: "",
+        })
+        setFormError(null);
+        setIsModalOpen(true);
+    }
+
+    function openEditModal(subscription: Subscription) {
+        setModalMode("edit");
+        setEditingSubscription(subscription);
+        setForm({
+            name: subscription.name,
+            price: String(subscription.price),
+            currency: subscription.currency,
+            frequency: subscription.frequency,
+            nextBillingDate: subscription.nextBillingDate,
+            description: subscription.description || "",
+        })
+        setFormError(null);
+        setIsModalOpen(true);
+    }
+
+    function closeModal() {
+        setIsModalOpen(false);
+        setEditingSubscription(null);
+        setFormError(null);
     }
 
 
@@ -54,155 +108,247 @@ function SubscriptionsPage() {
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        setErrorMessage(null);
 
         if (!form.name || !form.price || !form.frequency || !form.nextBillingDate) {
-            setErrorMessage("Les champs nom, prix, fréquence et prochaine échéance sont obligatoires.");
+            setFormError("Les champs nom, prix, fréquence et prochaine échéance sont obligatoires.");
             return;
         }
 
         const priceNumber = Number(form.price);
         if (Number.isNaN(priceNumber) || priceNumber <= 0) {
-            setErrorMessage("Le prix doit être positif.");
+            setFormError("Le prix doit être positif.");
             return;
         }
 
-        try {
-            const createdSubscription = await createSubscription({
-                name: form.name,
-                price: priceNumber,
-                currency: form.currency || "EUR",
-                frequency: form.frequency,
-                nextBillingDate: form.nextBillingDate,
-                description: form.description || "",
-            });
+        const payload: SubscriptionInput = {
+            name: form.name,
+            price: priceNumber,
+            currency: form.currency || "EUR",
+            frequency: form.frequency,
+            nextBillingDate: form.nextBillingDate,
+            description: form.description || "",
+        };
 
-            setSubscriptions((prev) => [createdSubscription, ...prev]);
-            setForm(INITIAL_FORM_STATE);
-        } catch (error) {
-            console.error("Erreur POST /api/subscriptions:", error);
-            setErrorMessage(
-                error instanceof Error
-                ? error.message
-                : "Impossible d'enregistrer l'abonnement."
+        try {
+            setFormSubmitting(true);
+            if (modalMode === "create") {
+                const created = await createSubscription(payload);
+                setSubscriptions((prev) => [created, ...prev]);
+            } else if (modalMode === "edit" && editingSubscription) {
+                const updated = await updateSubscription(editingSubscription.id, payload);
+                setSubscriptions((prev) =>
+                prev.map((exp) => (exp.id === updated.id ? updated : exp))
+                );
+            }
+
+            closeModal();
+        } catch (err) {
+            console.error("Erreur submit abonnement:", err);
+            setFormError(
+                err instanceof Error
+                ? err.message
+                : "Erreur lors de l'enregistrement de l'abonnement."
+            );
+        } finally {
+            setFormSubmitting(false);
+        }
+    }
+
+    async function handleDelete(subscription: Subscription) {
+        const confirmed = window.confirm(
+            `Supprimer l'abonnement "${subscription.name}" ?`
+        );
+        if (!confirmed) return;
+
+        try {
+            await deleteSubscription(subscription.id);
+            setSubscriptions((prev) => prev.filter((s) => s.id !== subscription.id));
+        } catch (err) {
+            console.error("Erreur suppression abonnement:", err);
+            alert(
+            "Erreur lors de la suppression de l'abonnement. Consultez la console pour plus de détails."
             );
         }
     }
 
     return (
         <div>
-            <PageTitle
-                title="Abonnements"
-                subtitle="Gérez vos abonnements récurrents et leurs échéances"
-            />
+            <div className="page-header">
+                <div className="page-header-title">
+                    <PageTitle title="Abonnements" />
+                </div>
+                <div className="page-header-action">
+                    <button type="button" className="btn" onClick={openCreateModal}>
+                        + Ajouter un abonnement
+                    </button>
+                </div>
+            </div>
 
+            {loading && <p>Chargement des abonnements...</p>}
 
-            <Card>
-                <h2 style={{ marginBottom: "1rem" }}>Ajouter un abonnement</h2>
+            {error && (
+                <Card>
+                    <p className="error-text">{error}</p>
+                </Card>
+            )}
 
-                {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+            {!loading && !error && (
+                <Card>
+                    <h2 className="subscriptions-list-title">Ajouter un abonnement</h2>
 
-                <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label>
-                            Nom du service *<br />
-                            <input
-                                type="text"
-                                name="name"
-                                value={form.name}
-                                onChange={handleInputChange}
-                                placeholder="Netflix, Spotify, ..."
-                            />
-                        </label>
+                    {subscriptions.length === 0 ? (
+                        <p>Aucun abonnement pour le moment.</p>
+                    ) : (
+                        <div className="subscriptions-list">
+                            {subscriptions.map((subscription) => (
+                                <Card key={subscription.id}>
+                                    <div className="subscription-card-header">
+                                        <div>
+                                            <div className="list-item-title">
+                                                {subscription.name} — {subscription.price}{" "}
+                                                {subscription.currency}
+                                            </div>
+                                            <div className="list-item-meta">
+                                                Fréquence : {subscription.frequency} — Prochaine échéance :{" "}
+                                                {subscription.nextBillingDate}
+                                            </div>
+                                                {subscription.description && (
+                                            <div className="list-item-meta">
+                                                {subscription.description}
+                                            </div>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <button
+                                                type="button"
+                                                className="icon-button"
+                                                onClick={() => openEditModal(subscription)}
+                                                aria-label="Modifier l'abonnement"
+                                                title="Modifier"
+                                            >
+                                                ✏️
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="icon-button"
+                                                onClick={() => handleDelete(subscription)}
+                                                aria-label="Supprimer l'abonnement"
+                                                title="Supprimer"
+                                            >
+                                                🗑️
+                                            </button>
+                                        </div>
+                                    </div>
+                                </Card>
+                            ))}
+                        </div>
+                    )}
+                </Card>
+            )}
+
+            {isModalOpen && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2 className="modal-title">
+                            {modalMode === "create"
+                            ? "Ajouter un abonnement"
+                            : "Modifier l'abonnement"}
+                        </h2>
+
+                        {formError && (
+                            <p className="error-text--spaced">{formError}</p>
+                        )}
+
+                        <form onSubmit={handleSubmit}>
+                            <div className="form-group">
+                                <label htmlFor="name">Nom *</label>
+                                <input
+                                    id="name"
+                                    name="name"
+                                    type="text"
+                                    value={form.name}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="price">Prix *</label>
+                                <input
+                                    id="price"
+                                    name="price"
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    value={form.price}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="currency">Devise</label>
+                                <input
+                                    id="currency"
+                                    name="currency"
+                                    type="text"
+                                    value={form.currency}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="frequency">Fréquence *</label>
+                                <input
+                                    id="frequency"
+                                    name="frequency"
+                                    type="text"
+                                    value={form.frequency}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="nextBillingDate">Prochaine échéance *</label>
+                                <input
+                                    id="nextBillingDate"
+                                    name="nextBillingDate"
+                                    type="date"
+                                    value={form.nextBillingDate}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="description">Description</label>
+                                <textarea
+                                    id="description"
+                                    name="description"
+                                    value={form.description}
+                                    onChange={handleInputChange}
+                                    rows={3}
+                                />
+                            </div>
+
+                            <div className="modal-actions">
+                                <button
+                                    type="button"
+                                    className="btn-secondary"
+                                    onClick={closeModal}
+                                    disabled={formSubmitting}
+                                >
+                                    Annuler
+                                </button>
+                                <button type="submit" className="btn" disabled={formSubmitting}>
+                                    {formSubmitting
+                                    ? "Enregistrement..."
+                                    : modalMode === "create"
+                                    ? "Enregistrer"
+                                    : "Mettre à jour"}
+                                </button>
+                            </div>
+                        </form>
                     </div>
-
-                    <div className="form-group">
-                        <label>
-                            Prix *<br />
-                            <input
-                                type="number"
-                                name="price"
-                                value={form.price}
-                                onChange={handleInputChange}
-                                step="0.01"
-                                min="0"
-                            />
-                        </label>
-                    </div>
-
-                    <div className="form-group">
-                        <label>
-                            Devise<br />
-                            <select 
-                                name="currency"
-                                value={form.currency}
-                                onChange={handleInputChange}
-                            >
-                                <option value="EUR">EUR</option>
-                                <option value="USD">USD</option>
-                            </select>
-                        </label>
-                    </div>
-
-                    <div className="form-group">
-                        <label>
-                            Fréquence *<br />
-                            <select 
-                                name="frequency"
-                                value={form.frequency}
-                                onChange={handleInputChange}
-                            >
-                                <option value="monthly">Mensuel</option>
-                                <option value="yearly">Annuel</option>
-                            </select>
-                        </label>
-                    </div>
-
-                    <div className="form-group">
-                        <label>
-                            Prochaine échéance *<br />
-                            <input
-                                type="date"
-                                name="nextBillingDate"
-                                value={form.nextBillingDate}
-                                onChange={handleInputChange}
-                            />
-                        </label>
-                    </div>
-
-                    <div className="form-group">
-                        <label>
-                            Description<br />
-                            <textarea
-                                name="description"
-                                value={form.description}
-                                onChange={handleInputChange}
-                                rows={2}
-                            />
-                        </label>
-                    </div>
-
-                    <button type="submit" className="btn">Enregistrer l'abonnement</button>
-                </form>
-            </Card>
-
-            <Card>
-                {subscriptions.length === 0 ? (
-                    <p>Aucun abonnement pour le moment.</p>
-                ) : (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                        {subscriptions.map((sub) => (
-                            <Card key={sub.id}>
-                                <div className="list-item-title">{sub.name} - {sub.price} {sub.currency} ({sub.frequency})</div>
-                                <div className="list-item-meta">Prochaine échéance : {sub.nextBillingDate}</div>
-                                {sub.description && (
-                                    <div className="list-item-meta">Description : {sub.description}</div>
-                                )}
-                            </Card>
-                        ))}
-                    </div>
+                </div>
                 )}
-            </Card>
         </div>
     );
 }
