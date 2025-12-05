@@ -9,7 +9,7 @@ const {
 const router = express.Router();
 
 // GET /api/subscriptions
-router.get("/", (req, res) => {
+router.get("/", (req, res, next) => {
     try {
         const rows = getAllSubscriptions();
         res.json(rows);
@@ -62,7 +62,8 @@ router.put("/:id", (req, res, next) => {
     }
 
     try {
-        const updated = updateSubscription(id, {
+        const userId = req.userId;
+        const updated = updateSubscription(userId, id, {
             name,
             price,
             currency,
@@ -90,7 +91,8 @@ router.delete("/:id", (req, res, next) => {
     }
 
     try {
-        const deleted = deleteSubscription(id);
+        const userId = req.userId;
+        const deleted = deleteSubscription(userId, id);
 
         if (!deleted) {
             return res.status(404).json({ error: "Abonnement introuvable." });

@@ -1,9 +1,22 @@
 const request = require("supertest");
-const app = require("../app");
+// const app = require("../app");
+const { app, resetDatabase, createTestUserAndGetToken } = require("./testHelpers");
+
+let token;
+let user;
+
+beforeEach(async () => {
+    resetDatabase();
+    const result = await createTestUserAndGetToken();
+    token = result.token;
+    user = result.user;
+})
 
 describe("API /api/expenses", () => {
     test("GET /api/expenses doit renvoyer un tableau (status 200)", async () => {
-        const response = await request(app).get("/api/expenses");
+        const response = await request(app)
+            .get("/api/expenses")
+            .set("Authorization", `Bearer ${token}`);
 
         expect(response.status).toBe(200);
         expect(Array.isArray(response.body)).toBe(true);
@@ -22,7 +35,8 @@ describe("API /api/expenses", () => {
         const response = await request(app)
             .post("/api/expenses")
             .send(payload)
-            .set("Content-Type", "application/json");
+            .set("Content-Type", "application/json")
+            .set("Authorization", `Bearer ${token}`);
 
         expect(response.status).toBe(201);
         expect(response.body).toHaveProperty("id");
@@ -44,7 +58,8 @@ describe("API /api/expenses", () => {
         const response = await request(app)
             .post("/api/expenses")
             .send(payload)
-            .set("Content-Type", "application/json");
+            .set("Content-Type", "application/json")
+            .set("Authorization", `Bearer ${token}`);
 
         expect(response.status).toBe(400);
         expect(response.body).toHaveProperty("error");
@@ -63,7 +78,8 @@ describe("API /api/expenses", () => {
         const createResponse = await request(app)
             .post("/api/expenses")
             .send(createPayload)
-            .set("Content-Type", "application/json");
+            .set("Content-Type", "application/json")
+            .set("Authorization", `Bearer ${token}`);
 
         expect(createResponse.status).toBe(201);
         const createdId = createResponse.body.id;
@@ -80,7 +96,8 @@ describe("API /api/expenses", () => {
         const updateResponse = await request(app)
             .put(`/api/expenses/${createdId}`)
             .send(updatePayload)
-            .set("Content-Type", "application/json");
+            .set("Content-Type", "application/json")
+            .set("Authorization", `Bearer ${token}`);
 
         expect(updateResponse.status).toBe(200);
         expect(updateResponse.body.id).toBe(createdId);
@@ -102,20 +119,26 @@ describe("API /api/expenses", () => {
         const createResponse = await request(app)
             .post("/api/expenses")
             .send(createPayload)
-            .set("Content-Type", "application/json");
+            .set("Content-Type", "application/json")
+            .set("Authorization", `Bearer ${token}`);
 
         expect(createResponse.status).toBe(201);
         const createdId = createResponse.body.id;
 
-        const deleteResponse = await request(app).delete(
-            `/api/expenses/${createdId}`
-        );
+        const deleteResponse = await request(app)
+            .delete(`/api/expenses/${createdId}`)
+            .set("Authorization", `Bearer ${token}`);
 
         expect(deleteResponse.status).toBe(204);
 
-        const deleteAgainResponse = await request(app).delete(
-            `/api/expenses/${createdId}`
-        );
+        const deleteAgainResponse = await request(app)
+            .delete(`/api/expenses/${createdId}`)
+            .set("Authorization", `Bearer ${token}`);
         expect(deleteAgainResponse.status).toBe(404);
+    });
+
+    test("GET /api/expenses renvoie 401 sans token", async () => {
+        const response = await request(app).get("/api/expenses");
+        expect(response.statusCode).toBe(401);
     });
 });

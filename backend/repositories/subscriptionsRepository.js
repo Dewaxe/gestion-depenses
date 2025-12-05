@@ -15,7 +15,7 @@ function getAllSubscriptions(userId) {
         ORDER BY next_billing_date ASC, id ASC
     `);
 
-    const rows = statement.all(UserId);
+    const rows = statement.all(userId);
     return rows;
 }
 
@@ -86,7 +86,7 @@ function updateSubscription(userId, id, { name, price, currency, frequency, next
             next_billing_date AS nextBillingDate,
             description
         FROM subscriptions
-        WHERE id = ?
+        WHERE id = ? AND user_id = ?
     `);
 
     const updatedSubscription = selectStatement.get(id, userId);
@@ -96,7 +96,7 @@ function updateSubscription(userId, id, { name, price, currency, frequency, next
 function deleteSubscription(userId, id) {
     const deleteStatement = db.prepare(`
         DELETE FROM subscriptions
-        WHERE id = ?
+        WHERE id = ? AND user_id = ?
     `);
 
     const result = deleteStatement.run(id, userId);

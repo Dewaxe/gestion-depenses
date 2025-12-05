@@ -9,7 +9,7 @@ const {
 const router = express.Router();
 
 // GET /api/expenses
-router.get("/", (req, res) => {
+router.get("/", (req, res, next) => {
     try {
         const rows = getAllExpenses();
         res.json(rows);
@@ -62,7 +62,8 @@ router.put("/:id", (req, res, next) => {
     }
 
     try {
-        const updated = updateExpense(id, {
+        const userId = req.userId;
+        const updated = updateExpense(userId, id, {
             amount,
             currency,
             date,
@@ -90,7 +91,8 @@ router.delete("/:id", (req, res, next) => {
     }
 
     try {
-        const deleted = deleteExpense(id);
+        const userId = req.userId;
+        const deleted = deleteExpense(userId, id);
 
         if (!deleted) {
             return res.status(404).json({ error: "Dépense introuvable." });
