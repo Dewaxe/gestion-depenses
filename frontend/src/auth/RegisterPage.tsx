@@ -39,52 +39,59 @@ const RegisterPage: React.FC = () => {
     };
 
     return (
-        <div className="auth-container">
-            <h1>Créer un compte</h1>
-            <form onSubmit={handleSubmit} className="auth-form">
-                <label>
-                    Email
-                    <input
-                        type="email"
-                        value={email}
-                        autoComplete="email"
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                </label>
+        <div className="auth-page">
+            <div className="auth-card">
+                <h1 className="auth-title">Créer un compte</h1>
+                <form onSubmit={handleSubmit} className="auth-form">
+                    
+                    <div className="auth-field">
+                        <label className="auth-label">Email</label>
+                        <input
+                            className="auth-input"
+                            type="email"
+                            value={email}
+                            autoComplete="email"
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                        
+                    </div>
 
-                <label>
-                    Mot de passe
-                    <input
-                        type="password"
-                        value={password}
-                        autoComplete="new-password"
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                </label>
+                    <div className="auth-field">
+                        <label className="auth-label">Mot de passe</label>
+                        <input
+                            className="auth-input"
+                            type="password"
+                            value={password}
+                            autoComplete="new-password"
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
 
-                <label>
-                    Confirmer le mot de passe
-                    <input
-                        type="password"
-                        value={passwordConfirm}
-                        autoComplete="new-password"
-                        onChange={(e) => setPasswordConfirm(e.target.value)}
-                        required
-                    />
-                </label>
+                    <div className="auth-field">
+                        <label className="auth-field">Confirmer le mot de passe</label>
+                        <input
+                            className="auth-input"
+                            type="password"
+                            value={passwordConfirm}
+                            autoComplete="new-password"
+                            onChange={(e) => setPasswordConfirm(e.target.value)}
+                            required
+                        />
+                    </div>
 
-                {error && <p className="auth-error">{error}</p>}
+                    {error && <p className="auth-error">{error}</p>}
 
-                <button type="submit" disabled={submitting}>
-                    {submitting ? "Création..." : "Créer le compte"}
-                </button>
-            </form>
+                    <button className="auth-button" type="submit" disabled={submitting}>
+                        {submitting ? "Création..." : "Créer le compte"}
+                    </button>
+                </form>
 
-            <p className="auth-switch">
-                Déjà un compte ? <Link to="/login">Se connecter</Link>
-            </p>
+                <p className="auth-switch">
+                    Déjà un compte ? <Link to="/login">Se connecter</Link>
+                </p>
+            </div>
         </div>
     );
 };

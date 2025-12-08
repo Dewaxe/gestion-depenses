@@ -32,41 +32,48 @@ const LoginPage: React.FC = () => {
     };
 
     return (
-        <div className="auth-container">
-            <h1>Connexion</h1>
-            <form onSubmit={handleSubmit} className="auth-form">
-                <label>
-                    Email
-                    <input
-                        type="email"
-                        value={email}
-                        autoComplete="email"
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                </label>
+        <div className="auth-page">
+            <div className="auth-card">
+                <h1 className="auth-title">Connexion</h1>
+                <p className="auth-subtitle">
+                    Accède à ton tableau de bord et à tes dépenses.
+                </p>
+                <form onSubmit={handleSubmit} className="auth-form">
+                    <div className="auth-field">
+                        <label className="auth-label">Email</label>
+                        <input
+                            className="auth-input"
+                            type="email"
+                            value={email}
+                            autoComplete="email"
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                    </div>
 
-                <label>
-                    Mot de passe
-                    <input
-                        type="password"
-                        value={password}
-                        autoComplete="current-password"
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                </label>
+                    <div className="auth-field">
+                        <label className="auth-label">Mot de passe</label>
+                        <input
+                            className="auth-input"
+                            type="password"
+                            value={password}
+                            autoComplete="current-password"
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
 
-                {error && <p className="auth-error">{error}</p>}
+                    {error && <p className="auth-error">{error}</p>}
 
-                <button type="submit" disabled={submitting}>
-                    {submitting ? "Connexion..." : "Se connecter"}
-                </button>
-            </form>
+                    <button className="auth-button" type="submit" disabled={submitting}>
+                        {submitting ? "Connexion..." : "Se connecter"}
+                    </button>
+                </form>
 
-            <p className="auth-switch">
-                Pas encore de compte ? <Link to="/register">Créer un compte</Link>
-            </p>
+                <p className="auth-switch">
+                    Pas encore de compte ? <Link to="/register">Créer un compte</Link>
+                </p>
+            </div>
         </div>
     );
 };
