@@ -25,6 +25,7 @@ body {
   max-width: 800px;
   margin: 0 auto;
   padding: 2rem 1rem 4rem;
+  background: radial-gradient(circle at top, #eef0ff 0, #f6f7fb 45%, #f3f4f6 100%);
 }
 
 .app-header {
