@@ -1,6 +1,8 @@
 import { Outlet, Link } from "react-router-dom";
+import { useAuth } from "./auth/AuthContext";
 
 function App() {
+  const { user, logout } = useAuth();
   return (
     <div>
       <header
@@ -27,6 +29,14 @@ function App() {
             <Link to="/">Accueil</Link>
             <Link to="/expenses">Dépenses</Link>
             <Link to="/subscriptions">Abonnements</Link>
+            <div style={{ marginLeft: "auto" }}>
+              {user && (
+                <>
+                  <span style={{ marginRight: "1rem" }}>{user.email}</span>
+                  <button onClick={logout}>Se déconnecter</button>
+                </>
+              )}
+            </div>
           </nav>
         </div>
       </header>

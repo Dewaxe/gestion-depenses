@@ -9,15 +9,30 @@ type ApiError = {
     message?: string;
 }
 
-export async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
+type ApiFetchOptions = RequestInit & {
+    auth?: boolean;
+};
+
+export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): Promise<T> {
     const url = API_URL + path;
 
+    const { auth = true, headers, ...restOptions } = options;
+
+    const finalHeaders: HeadersInit = {
+        "Content-Type": "application/json",
+        ...(headers || {}),
+    };
+
+    if (auth) {
+        const token = localStorage.getItem("authToken");
+        if (token) {
+            (finalHeaders as Record<string, string>).Authorization = `Bearer ${token}`;
+        }
+    }
+
     const response = await fetch(url, {
-        ...options,
-        headers: {
-            "Content-Type": "application/json",
-            ...(options && options.headers),
-        },
+        ...restOptions,
+        headers: finalHeaders,
     });
 
     if (!response.ok) {
@@ -31,7 +46,9 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
         } catch {
         }
 
-        throw new Error(errorMessage);
+        const error = new Error(errorMessage) as Error & { status?: number };
+        error.status = response.status;
+        throw error;
     }
     
     if (response.status === 204) {
