@@ -45,7 +45,7 @@ const LoginPage: React.FC = () => {
                             className="auth-input"
                             type="email"
                             value={email}
-                            autoComplete="email"
+                            name="email"
                             onChange={(e) => setEmail(e.target.value)}
                             required
                         />
@@ -57,7 +57,7 @@ const LoginPage: React.FC = () => {
                             className="auth-input"
                             type="password"
                             value={password}
-                            autoComplete="current-password"
+                            name="current-password"
                             onChange={(e) => setPassword(e.target.value)}
                             required
                         />

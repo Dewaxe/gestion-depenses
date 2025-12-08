@@ -50,7 +50,7 @@ const RegisterPage: React.FC = () => {
                             className="auth-input"
                             type="email"
                             value={email}
-                            autoComplete="email"
+                            name="email"
                             onChange={(e) => setEmail(e.target.value)}
                             required
                         />
@@ -63,7 +63,7 @@ const RegisterPage: React.FC = () => {
                             className="auth-input"
                             type="password"
                             value={password}
-                            autoComplete="new-password"
+                            name="new-password"
                             onChange={(e) => setPassword(e.target.value)}
                             required
                         />
@@ -75,7 +75,7 @@ const RegisterPage: React.FC = () => {
                             className="auth-input"
                             type="password"
                             value={passwordConfirm}
-                            autoComplete="new-password"
+                            name="new-password"
                             onChange={(e) => setPasswordConfirm(e.target.value)}
                             required
                         />
