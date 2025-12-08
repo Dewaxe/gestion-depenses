@@ -247,7 +247,7 @@ function ExpensesPage() {
 
             {isModalOpen && (
                 <div className="modal-overlay">
-                    <div className="modal-content">
+                    <div className="modal">
                         <h2 className="modal-title">
                             {modalMode === "create" ? "Ajouter une dépense" : "Modifier la dépense"}
                         </h2>
