@@ -11,7 +11,8 @@ const router = express.Router();
 // GET /api/subscriptions
 router.get("/", (req, res, next) => {
     try {
-        const rows = getAllSubscriptions();
+        const userId = req.userId;
+        const rows = getAllSubscriptions(userId);
         res.json(rows);
     } catch (error) {
         next(error);

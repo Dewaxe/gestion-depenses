@@ -11,7 +11,8 @@ const router = express.Router();
 // GET /api/expenses
 router.get("/", (req, res, next) => {
     try {
-        const rows = getAllExpenses();
+        const userId = req.userId;
+        const rows = getAllExpenses(userId);
         res.json(rows);
     } catch (error) {
         next(error);
