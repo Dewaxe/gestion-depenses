@@ -2,22 +2,22 @@ const db = require("../db");
 
 function findUserByEmail(email) {
     const statement = db.prepare(`
-        SELECT id, email, password_hash AS passwordHash
+        SELECT id, name, email, password_hash AS passwordHash
         FROM users
         WHERE email = ?
     `);
     return statement.get(email);
     }
 
-    function createUser(email, passwordHash) {
+    function createUser(name, email, passwordHash) {
     const insert = db.prepare(`
-        INSERT INTO users (email, password_hash)
-        VALUES (?, ?)
+        INSERT INTO users (name, email, password_hash)
+        VALUES (?, ?, ?)
     `);
-    const result = insert.run(email, passwordHash);
+    const result = insert.run(name, email, passwordHash);
 
     const select = db.prepare(`
-        SELECT id, email, password_hash AS passwordHash
+        SELECT id, name, email, password_hash AS passwordHash
         FROM users
         WHERE id = ?
     `);

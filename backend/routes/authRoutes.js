@@ -11,7 +11,8 @@ const JWT_EXPIRES_IN = "7d";
 // POST /api/auth/register
 router.post("/register", async (req, res, next) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, name } = req.body;
+        const safeName = typeof name === "string" ? name : "";
 
         if (!email || !password || password.length < 6) {
             return res.status(400).json({
@@ -25,7 +26,7 @@ router.post("/register", async (req, res, next) => {
         }
 
         const passwordHash = await bcrypt.hash(password, 10);
-        const user = createUser(email, passwordHash);
+        const user = createUser(safeName, email, passwordHash);
 
         const token = jwt.sign({ userId: user.id }, JWT_SECRET, {
             expiresIn: JWT_EXPIRES_IN,
@@ -33,7 +34,7 @@ router.post("/register", async (req, res, next) => {
 
         res.status(201).json({
             token,
-            user: { id: user.id, email: user.email },
+            user: { id: user.id, email: user.email, name: user.name },
         });
     } catch (err) {
         next(err);

@@ -4,6 +4,7 @@ require("./db");
 const healthRoutes = require("./routes/healthRoutes");
 const expensesRoutes = require("./routes/expensesRoutes");
 const subscriptionsRoutes = require("./routes/subscriptionsRoutes");
+const revenuesRoutes = require("./routes/revenuesRoutes");
 const authRoutes = require("./routes/authRoutes");
 const authMiddleware = require("./middleware/authMiddleware");
 const errorHandler = require("./middleware/errorHandler");
@@ -24,6 +25,7 @@ app.use("/api/health", healthRoutes);
 // });
 app.use("/api/expenses", authMiddleware, expensesRoutes);
 app.use("/api/subscriptions", authMiddleware, subscriptionsRoutes);
+app.use("/api/revenues", authMiddleware, revenuesRoutes);
 
 app.use(errorHandler);
 
