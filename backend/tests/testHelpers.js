@@ -27,8 +27,30 @@ async function createTestUserAndGetToken(email = "test@example.com", password = 
     return { token, user };
 }
 
+function toISODateUTC(date) {
+  const yyyy = date.getUTCFullYear();
+  const mm = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(date.getUTCDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function addDaysUTC(iso, days) {
+  const [y, m, d] = iso.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  dt.setUTCDate(dt.getUTCDate() + days);
+  return toISODateUTC(dt);
+}
+
+function monthYYYYMMFromISO(iso) {
+  return iso.slice(0, 7);
+}
+
+
 module.exports = {
     app,
     resetDatabase,
     createTestUserAndGetToken,
+    toISODateUTC,
+    addDaysUTC,
+    monthYYYYMMFromISO
 };
