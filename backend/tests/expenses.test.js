@@ -22,6 +22,28 @@ describe("API /api/expenses", () => {
         expect(Array.isArray(response.body)).toBe(true);
     });
 
+    test("GET /api/expenses?month=YYYY-MM renvoie seulement le mois demandé", async () => {
+        await request(app)
+            .post("/api/expenses")
+            .send({ amount: 10, date: "2025-02-01", category: "A" })
+            .set("Content-Type", "application/json")
+            .set("Authorization", `Bearer ${token}`);
+
+        await request(app)
+            .post("/api/expenses")
+            .send({ amount: 20, date: "2025-03-01", category: "B" })
+            .set("Content-Type", "application/json")
+            .set("Authorization", `Bearer ${token}`);
+
+        const feb = await request(app)
+            .get("/api/expenses?month=2025-02")
+            .set("Authorization", `Bearer ${token}`);
+
+        expect(feb.status).toBe(200);
+        expect(feb.body.length).toBe(1);
+        expect(feb.body[0].date.startsWith("2025-02")).toBe(true);
+    });
+
     test("POST /api/expenses avec des données valides doit renvoyer 201 + la dépense créée", async () => {
         const payload = {
             amount: 42.5,

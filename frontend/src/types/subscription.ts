@@ -1,18 +1,18 @@
 export type Subscription = {
     id: number;
     name: string;
-    price: number;
+    amount: number;
     currency: string;
-    frequency: string;
+    billing_period: string;
     nextBillingDate: string;
     description: string;
 };
 
 export type SubscriptionInput = {
     name: string;
-    price: number;
+    amount: number;
     currency: string;
-    frequency: string;
+    billing_period: string;
     nextBillingDate: string;
     description: string;
 };

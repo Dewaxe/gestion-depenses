@@ -1,13 +1,18 @@
 const db = require("../db");
+const { computeMonthlyEquivalent } = require("../services/subscriptionExpenseGenerator");
 
 function getAllSubscriptions(userId) {
     const statement = db.prepare(`
         SELECT
             id,
             name,
-            price,
+            amount,
+            promo_amount AS promoAmount,
             currency,
-            frequency,
+            billing_period AS billingPeriod,
+            monthly_equivalent AS monthlyEquivalent,
+            status,
+            status_end_date AS statusEndDate,
             next_billing_date AS nextBillingDate,
             description
         FROM subscriptions
@@ -19,18 +24,24 @@ function getAllSubscriptions(userId) {
     return rows;
 }
 
-function createSubscription(userId, { name, price, currency, frequency, nextBillingDate, description }) {
+function createSubscription(userId, { name, amount, promoAmount, currency, billingPeriod, status, statusEndDate, nextBillingDate, description }) {
+    const monthlyEquivalent = computeMonthlyEquivalent(amount, billingPeriod);
+    
     const insertStatement = db.prepare(`
-        INSERT INTO subscriptions (user_id, name, price, currency, frequency, next_billing_date, description)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO subscriptions (user_id, name, amount, promo_amount, currency, billing_period, monthly_equivalent, status, status_end_date, next_billing_date, description)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const info = insertStatement.run(
         userId,
         name,
-        price,
+        amount,
+        promoAmount ?? null,
         currency || "EUR",
-        frequency,
+        billingPeriod,
+        monthlyEquivalent,
+        status || "active",
+        statusEndDate || null,
         nextBillingDate,
         description || ""
     );
@@ -38,9 +49,13 @@ function createSubscription(userId, { name, price, currency, frequency, nextBill
     const newSubscription = {
         id: info.lastInsertRowid,
         name,
-        price,
+        amount,
+        promoAmount: promoAmount ?? null,
         currency: currency || "EUR",
-        frequency,
+        billingPeriod,
+        monthlyEquivalent,
+        status: status || "active",
+        statusEndDate: statusEndDate || null,
         nextBillingDate,
         description: description || "",
     };
@@ -48,14 +63,20 @@ function createSubscription(userId, { name, price, currency, frequency, nextBill
     return newSubscription;
 }
 
-function updateSubscription(userId, id, { name, price, currency, frequency, nextBillingDate, description }) {
+function updateSubscription(userId, id, { name, amount, promoAmount, currency, billingPeriod, status, statusEndDate, nextBillingDate, description }) {
+    const monthlyEquivalent = computeMonthlyEquivalent(amount, billingPeriod);
+    
     const updateStatement = db.prepare(`
         UPDATE subscriptions
         SET
             name = ?,
-            price = ?,
+            amount = ?,
+            promo_amount = ?, 
             currency = ?,
-            frequency = ?,
+            billing_period = ?,
+            monthly_equivalent = ?,
+            status = ?,
+            status_end_date = ?,
             next_billing_date = ?,
             description = ?
         WHERE id = ? AND user_id = ?
@@ -63,9 +84,13 @@ function updateSubscription(userId, id, { name, price, currency, frequency, next
 
     const result = updateStatement.run(
         name,
-        price,
+        amount,
+        promoAmount,
         currency || "EUR",
-        frequency,
+        billingPeriod,
+        monthlyEquivalent,
+        status || "active",
+        statusEndDate || null,
         nextBillingDate,
         description || "",
         id,
@@ -80,9 +105,13 @@ function updateSubscription(userId, id, { name, price, currency, frequency, next
         SELECT
             id,
             name,
-            price,
+            amount,
+            promo_amount AS promoAmount,
             currency,
-            frequency,
+            billing_period AS billingPeriod,
+            monthly_equivalent AS monthlyEquivalent,
+            status,
+            status_end_date AS statusEndDate,
             next_billing_date AS nextBillingDate,
             description
         FROM subscriptions

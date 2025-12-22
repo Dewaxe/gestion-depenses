@@ -53,12 +53,12 @@ function HomePage() {
     .reduce((sum, expense) => sum + expense.amount, 0);
 
   const monthlySubscriptionsTotal = subscriptions
-    .filter((sub) => sub.frequency === "monthly")
-    .reduce((sum, sub) => sum + sub.price, 0);
+    .filter((sub) => sub.billing_period === "monthly")
+    .reduce((sum, sub) => sum + sub.amount, 0);
 
   const yearlySubscriptionsTotal = subscriptions
-    .filter((sub) => sub.frequency === "yearly")
-    .reduce((sum, sub) => sum + sub.price, 0);
+    .filter((sub) => sub.billing_period === "yearly")
+    .reduce((sum, sub) => sum + sub.amount, 0);
   
   const upcomingSubscriptions = [...subscriptions]
     .sort ((a, b) => a.nextBillingDate.localeCompare(b.nextBillingDate))
@@ -126,11 +126,11 @@ function HomePage() {
                 {upcomingSubscriptions.map((sub) => (
                   <li key={sub.id} className="dashboard-list-item">
                     <div className="dashboard-list-item-title">
-                      {sub.name} - {sub.price} {sub.currency}
+                      {sub.name} - {sub.amount} {sub.currency}
                     </div>
                     <div className="dashboard-list-item-meta">
                       Prochaine facturation : {sub.nextBillingDate} (
-                        {sub.frequency === "monthly" ? "mensuel" : "annuel"}
+                        {sub.billing_period === "monthly" ? "mensuel" : "annuel"}
                       )
                     </div>
                     {sub.description && (

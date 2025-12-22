@@ -37,7 +37,7 @@ Champs envisagés :
 - `name` : nom du service (ex : "Netflix", "Spotify").
 - `amount` : montant par période.
 - `currency` : devise (ex : "EUR").
-- `frequency` : fréquence (ex : "mensuel", "annuel").
+- `billing_period` : fréquence (ex : "mensuel", "annuel").
 - `nextBillingDate` : date de la prochaine échéance.
 - `category` : catégorie (ex : "Streaming", "Téléphone", "Logiciels").
 - `paymentMethod` : moyen de paiement.

@@ -8,6 +8,8 @@ function getAllExpenses(userId) {
             currency,
             date,
             category,
+            source,
+            subscription_id AS subscriptionId,
             payment_method AS paymentMethod,
             description
         FROM expenses
@@ -19,10 +21,34 @@ function getAllExpenses(userId) {
     return rows;
 }
 
-function createExpense(userId, { amount, currency, date, category, paymentMethod, description }) {
+function getExpensesByMonth(userId, monthYYYYMM) {
+    // monthYYYYMM = "2025-12"
+    const statement = db.prepare(`
+        SELECT
+            id,
+            amount,
+            currency,
+            date,
+            category,
+            source,
+            subscription_id AS subscriptionId,
+            payment_method AS paymentMethod,
+            description
+        FROM expenses
+        WHERE user_id = ? AND date LIKE ?
+        ORDER BY date DESC, id DESC
+    `);
+
+    return statement.all(userId, `${monthYYYYMM}-%`);
+}
+
+function createExpense(userId, { amount, currency, date, category, paymentMethod, description, source, subscriptionId }) {
+    const resolvedSource = source ?? (subscriptionId ? "subscription" : "manual");
+    const resolvedSubscriptionId = resolvedSource === "subscription" ? (subscriptionId ?? null) : null;
+    
     const insertStatement = db.prepare(`
-        INSERT INTO expenses (user_id, amount, currency, date, category, payment_method, description)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO expenses (user_id, amount, currency, date, category, source, subscription_id, payment_method, description)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const info = insertStatement.run(
@@ -31,6 +57,8 @@ function createExpense(userId, { amount, currency, date, category, paymentMethod
         currency || "EUR",
         date,
         category,
+        resolvedSource,
+        resolvedSubscriptionId,
         paymentMethod || "Inconnu",
         description || ""
     );
@@ -41,6 +69,8 @@ function createExpense(userId, { amount, currency, date, category, paymentMethod
         currency: currency || "EUR",
         date,
         category,
+        source: resolvedSource,
+        subscriptionId: resolvedSubscriptionId,
         paymentMethod: paymentMethod || "Inconnu",
         description: description || "",
     };
@@ -49,6 +79,7 @@ function createExpense(userId, { amount, currency, date, category, paymentMethod
 }
 
 function updateExpense(userId, id, { amount, currency, date, category, paymentMethod, description }) {
+    //on n'autorise pas de changer source & subscriptionId via PUT
     const updateStatement = db.prepare(`
         UPDATE expenses
         SET
@@ -83,6 +114,8 @@ function updateExpense(userId, id, { amount, currency, date, category, paymentMe
             currency,
             date,
             category,
+            source,
+            subscription_id AS subscriptionId,
             payment_method AS paymentMethod,
             description
         FROM expenses
@@ -106,6 +139,7 @@ function deleteExpense(userId, id) {
 
 module.exports = {
     getAllExpenses,
+    getExpensesByMonth,
     createExpense,
     updateExpense,
     deleteExpense,

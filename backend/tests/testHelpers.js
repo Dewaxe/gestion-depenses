@@ -3,6 +3,8 @@ const app = require("../app");
 const db = require("../db");
 
 function resetDatabase() {
+    db.exec("DELETE FROM budget_rules;");
+    db.exec("DELETE FROM revenues;");
     db.exec("DELETE FROM expenses;");
     db.exec("DELETE FROM subscriptions;");
     db.exec("DELETE FROM users;");

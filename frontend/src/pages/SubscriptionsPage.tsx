@@ -6,18 +6,18 @@ import PageTitle from "../components/PageTitle";
 
 type SubscriptionFormState = {
     name: string;
-    price: string;
+    amount: string;
     currency: string;
-    frequency: string;
+    billing_period: string;
     nextBillingDate: string;
     description: string;
 };
 
 const INITIAL_FORM_STATE: SubscriptionFormState = {
     name: "",
-    price: "",
+    amount: "",
     currency: "EUR",
-    frequency: "monthly",
+    billing_period: "monthly",
     nextBillingDate: "",
     description: "",
 };
@@ -63,9 +63,9 @@ function SubscriptionsPage() {
         setEditingSubscription(null);
         setForm({
             name: "",
-            price: "",
+            amount: "",
             currency: "EUR",
-            frequency: "",
+            billing_period: "",
             nextBillingDate: "",
             description: "",
         })
@@ -78,9 +78,9 @@ function SubscriptionsPage() {
         setEditingSubscription(subscription);
         setForm({
             name: subscription.name,
-            price: String(subscription.price),
+            amount: String(subscription.amount),
             currency: subscription.currency,
-            frequency: subscription.frequency,
+            billing_period: subscription.billing_period,
             nextBillingDate: subscription.nextBillingDate,
             description: subscription.description || "",
         })
@@ -109,22 +109,22 @@ function SubscriptionsPage() {
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
-        if (!form.name || !form.price || !form.frequency || !form.nextBillingDate) {
+        if (!form.name || !form.amount || !form.billing_period || !form.nextBillingDate) {
             setFormError("Les champs nom, prix, fréquence et prochaine échéance sont obligatoires.");
             return;
         }
 
-        const priceNumber = Number(form.price);
-        if (Number.isNaN(priceNumber) || priceNumber <= 0) {
+        const amountNumber = Number(form.amount);
+        if (Number.isNaN(amountNumber) || amountNumber <= 0) {
             setFormError("Le prix doit être positif.");
             return;
         }
 
         const payload: SubscriptionInput = {
             name: form.name,
-            price: priceNumber,
+            amount: amountNumber,
             currency: form.currency || "EUR",
-            frequency: form.frequency,
+            billing_period: form.billing_period,
             nextBillingDate: form.nextBillingDate,
             description: form.description || "",
         };
@@ -205,11 +205,11 @@ function SubscriptionsPage() {
                                     <div className="subscription-card-header">
                                         <div>
                                             <div className="list-item-title">
-                                                {subscription.name} — {subscription.price}{" "}
+                                                {subscription.name} — {subscription.amount}{" "}
                                                 {subscription.currency}
                                             </div>
                                             <div className="list-item-meta">
-                                                Fréquence : {subscription.frequency} — Prochaine échéance :{" "}
+                                                Fréquence : {subscription.billing_period} — Prochaine échéance :{" "}
                                                 {subscription.nextBillingDate}
                                             </div>
                                                 {subscription.description && (
@@ -272,14 +272,14 @@ function SubscriptionsPage() {
                             </div>
 
                             <div className="form-group">
-                                <label htmlFor="price">Prix *</label>
+                                <label htmlFor="amount">Prix *</label>
                                 <input
-                                    id="price"
-                                    name="price"
+                                    id="amount"
+                                    name="amount"
                                     type="number"
                                     min="0"
                                     step="0.01"
-                                    value={form.price}
+                                    value={form.amount}
                                     onChange={handleInputChange}
                                 />
                             </div>
@@ -296,12 +296,12 @@ function SubscriptionsPage() {
                             </div>
 
                             <div className="form-group">
-                                <label htmlFor="frequency">Fréquence *</label>
+                                <label htmlFor="billing_period">Fréquence *</label>
                                 <input
-                                    id="frequency"
-                                    name="frequency"
+                                    id="billing_period"
+                                    name="billing_period"
                                     type="text"
-                                    value={form.frequency}
+                                    value={form.billing_period}
                                     onChange={handleInputChange}
                                 />
                             </div>

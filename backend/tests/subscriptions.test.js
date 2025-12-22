@@ -25,9 +25,9 @@ describe("API /api/subscriptions", () => {
     test("POST /api/subscriptions avec des données valides doit renvoyer 201 + l'abonnement créé", async () => {
         const payload = {
             name: "Netflix",
-            price: 12.99,
+            amount: 12.99,
             currency: "EUR",
-            frequency: "monthly",
+            billingPeriod: "monthly",
             nextBillingDate: "2025-03-01",
             description: "Abonnement de test",
         };
@@ -41,18 +41,18 @@ describe("API /api/subscriptions", () => {
         expect(response.status).toBe(201);
         expect(response.body).toHaveProperty("id");
         expect(response.body.name).toBe(payload.name);
-        expect(response.body.price).toBe(payload.price);
+        expect(response.body.amount).toBe(payload.amount);
         expect(response.body.currency).toBe(payload.currency);
-        expect(response.body.frequency).toBe(payload.frequency);
+        expect(response.body.billingPeriod).toBe(payload.billingPeriod);
         expect(response.body.nextBillingDate).toBe(payload.nextBillingDate);
     });
 
     test("POST /api/subscriptions sans name doit renvoyer 400", async () => {
         const payload = {
             // name manquant
-            price: 9.99,
+            amount: 9.99,
             currency: "EUR",
-            frequency: "monthly",
+            billingPeriod: "monthly",
             nextBillingDate: "2025-03-01",
             description: "Abonnement invalide",
         };
@@ -70,9 +70,9 @@ describe("API /api/subscriptions", () => {
     test("PUT /api/subscriptions/:id doit mettre à jour un abonnement existant", async () => {
         const createPayload = {
             name: "Test PUT sub",
-            price: 9.99,
+            amount: 9.99,
             currency: "EUR",
-            frequency: "monthly",
+            billingPeriod: "monthly",
             nextBillingDate: "2025-03-10",
             description: "Avant mise à jour",
         };
@@ -88,9 +88,9 @@ describe("API /api/subscriptions", () => {
 
         const updatePayload = {
             name: "Test PUT sub modifié",
-            price: 19.99,
+            amount: 19.99,
             currency: "EUR",
-            frequency: "yearly",
+            billingPeriod: "yearly",
             nextBillingDate: "2025-04-01",
             description: "Après mise à jour",
         };
@@ -104,17 +104,17 @@ describe("API /api/subscriptions", () => {
         expect(updateResponse.status).toBe(200);
         expect(updateResponse.body.id).toBe(createdId);
         expect(updateResponse.body.name).toBe(updatePayload.name);
-        expect(updateResponse.body.price).toBe(updatePayload.price);
-        expect(updateResponse.body.frequency).toBe(updatePayload.frequency);
+        expect(updateResponse.body.amount).toBe(updatePayload.amount);
+        expect(updateResponse.body.billingPeriod).toBe(updatePayload.billingPeriod);
         expect(updateResponse.body.nextBillingDate).toBe(updatePayload.nextBillingDate);
     });
 
     test("DELETE /api/subscriptions/:id doit supprimer un abonnement existant", async () => {
         const createPayload = {
             name: "Test DELETE sub",
-            price: 4.99,
+            amount: 4.99,
             currency: "EUR",
-            frequency: "monthly",
+            billingPeriod: "monthly",
             nextBillingDate: "2025-03-15",
             description: "À supprimer",
         };
