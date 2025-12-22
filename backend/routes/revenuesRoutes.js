@@ -6,6 +6,7 @@ const {
     updateRevenue,
     deleteRevenue,
 } = require("../repositories/revenuesRepository");
+const { generateRecurringRevenuesUpTo, todayISO } = require("../services/recurringRevenueGenerator");
 
 const router = express.Router();
 
@@ -19,11 +20,22 @@ function isValidType(t) {
     return t === "one-off" || t === "recurring";
 }
 
+function endOfMonthISO(monthYYYYMM) {
+  const [y, m] = monthYYYYMM.split("-").map(Number);
+  const lastDay = new Date(Date.UTC(y, m, 0));
+  const yyyy = lastDay.getUTCFullYear();
+  const mm = String(lastDay.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(lastDay.getUTCDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
 // GET /api/revenues?month=YYYY-MM
 router.get("/", (req, res, next) => {
     try {
         const userId = req.userId;
         const { month } = req.query;
+        const limit = month ? endOfMonthISO(month) : todayISO();
+        generateRecurringRevenuesUpTo(userId, limit);
 
         if (month) {
             if (!isValidMonthYYYYMM(month)) {
@@ -49,6 +61,9 @@ router.post("/", (req, res, next) => {
         if (type && !isValidType(type)) return res.status(400).json({ error: "type invalide (one-off|recurring)" });
 
         const created = createRevenue(userId, { amount, currency, date, type, description });
+        if (created.type === "recurring") {
+            generateRecurringRevenuesUpTo(userId, todayISO());
+        }
         return res.status(201).json(created);
     } catch (e) {
         next(e);

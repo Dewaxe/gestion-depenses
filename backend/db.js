@@ -66,6 +66,7 @@ function initSchema({ reset = false } = {}) {
             currency TEXT NOT NULL DEFAULT 'EUR',
             date TEXT NOT NULL,
             type TEXT NOT NULL CHECK (type IN ('one-off','recurring')),
+            recurring_template_id INTEGER DEFAULT NULL,
             description TEXT NOT NULL DEFAULT '',
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -84,6 +85,7 @@ function initSchema({ reset = false } = {}) {
         CREATE INDEX IF NOT EXISTS idx_expenses_user_date ON expenses(user_id, date);
         CREATE INDEX IF NOT EXISTS idx_revenues_user_date ON revenues(user_id, date);
         CREATE INDEX IF NOT EXISTS idx_subscriptions_user_next ON subscriptions(user_id, next_billing_date);
+        CREATE INDEX IF NOT EXISTS idx_revenues_user_template_date ON revenues(user_id, recurring_template_id, date);
         CREATE INDEX IF NOT EXISTS idx_budget_rules_user_cat ON budget_rules(user_id, category);
     `);
 
