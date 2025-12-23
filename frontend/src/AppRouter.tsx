@@ -16,9 +16,12 @@ export function AppRouter() {
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/" element={<App />}>
                     <Route index element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+                    <Route path="analysis" element={<ProtectedRoute><AnalysisPage /></ProtectedRoute>} />
                     <Route path="expenses" element={<ProtectedRoute><ExpensesPage /></ProtectedRoute>} />
                     <Route path="subscriptions" element={<ProtectedRoute><SubscriptionsPage /></ProtectedRoute>} />
-                    <Route path="analysis" element={<ProtectedRoute><AnalysisPage /></ProtectedRoute>} />
+                    {/* <Route path="revenues" element={<ProtectedRoute><RevenuesPage /></ProtectedRoute>} />
+                    <Route path="import" element={<ProtectedRoute><ImportPage /></ProtectedRoute>} />
+                    <Route path="settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} /> */}
                 </Route>
             </Routes>
         </BrowserRouter>

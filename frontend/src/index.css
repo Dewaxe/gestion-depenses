@@ -1,3 +1,7 @@
+html, body, #root {
+  height: 100%;
+}
+
 :root {
   --color-primary: #4f46e5;
   --color-primary-hover: #4338ca;
@@ -9,8 +13,9 @@
 }
 
 .app-root {
-  min-height: 100vh;
-  background-color: #f6f7fb;
+  display: flex;
+  height: 100dvh;
+  overflow: hidden;
 }
 
 body {
@@ -19,13 +24,18 @@ body {
   font-family: system-ui, sans-serif;
   background-color: var(--color-bg);
   color: var(--color-text);
+  overflow: hidden;
 }
 
 .app-main {
-  max-width: 800px;
+  flex: 1;
+  min-height: 0;
+  padding: 24px;
+  overflow-y: auto;
+  /* max-width: 800px;
   margin: 0 auto;
   padding: 2rem 1rem 4rem;
-  background: radial-gradient(circle at top, #eef0ff 0, #f6f7fb 45%, #f3f4f6 100%);
+  background: radial-gradient(circle at top, #eef0ff 0, #f6f7fb 45%, #f3f4f6 100%); */
 }
 
 .app-header {
@@ -571,4 +581,54 @@ textarea:focus {
   .auth-title {
     font-size: 1.35rem;
   }
+}
+
+
+/* Post refactoring */
+
+/* Sidebar */
+
+.app-sidebar {
+  width: 260px;
+  flex: 0 0 260px;
+  height: 100%;
+  border-right: 1px solid rgba(0, 0, 0, 0.06);
+  background: #fff;
+  overflow: auto;
+}
+
+.app-sidebar-inner {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.app-sidebar-brand {
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+
+.app-sidebar-nav {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.app-sidebar-link {
+  padding: 10px 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.app-sidebar-link.active {
+  font-weight: 600;
+  background: rgba(79, 70, 229, 0.08);
+}
+
+.app-sidebar-user {
+  padding-top: 12px;
 }
