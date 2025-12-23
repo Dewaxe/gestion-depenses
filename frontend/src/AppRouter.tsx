@@ -6,6 +6,7 @@ import ProtectedRoute from "./auth/ProtectedRoute";
 import HomePage from "./pages/HomePage";
 import ExpensesPage from "./pages/ExpensesPage";
 import SubscriptionsPage from "./pages/SubscriptionsPage";
+import AnalysisPage from "./pages/AnalysisPage";
 
 export function AppRouter() {
     return (
@@ -17,6 +18,7 @@ export function AppRouter() {
                     <Route index element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
                     <Route path="expenses" element={<ProtectedRoute><ExpensesPage /></ProtectedRoute>} />
                     <Route path="subscriptions" element={<ProtectedRoute><SubscriptionsPage /></ProtectedRoute>} />
+                    <Route path="analysis" element={<ProtectedRoute><AnalysisPage /></ProtectedRoute>} />
                 </Route>
             </Routes>
         </BrowserRouter>

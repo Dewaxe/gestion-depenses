@@ -28,6 +28,9 @@ function Navbar() {
                     <NavLink to="/subscriptions" className="app-nav-link">
                         Abonnements
                     </NavLink>
+                    <NavLink to="/analysis" className="app-nav-link">
+                        Analyse
+                    </NavLink>
                 </nav>
 
                 <div className="app-user">
