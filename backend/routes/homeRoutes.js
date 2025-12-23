@@ -162,6 +162,63 @@ router.get("/", (req, res, next) => {
         LIMIT 8
         `);
         const recentExpenses = recentExpensesStmt.all(userId, range.from, range.to);
+        
+        // 5) Règles budgétaires dans la période
+        const rulesStmt = db.prepare(`
+            SELECT
+                id,
+                category,
+                monthly_limit AS monthlyLimit,
+                is_active AS isActive
+            FROM budget_rules
+            WHERE user_id = ? AND is_active = 1
+            ORDER BY category IS NOT NULL DESC, category ASC, id ASC
+        `);
+
+        const factor =
+            (range.from.slice(0, 7) === range.to.slice(0, 7) && (req.query.view || "month") === "month") ? 1
+            : (req.query.view === "quarter") ? 3
+            : (req.query.view === "year") ? 12
+            : 1;
+
+        const sumByCategoryStmt = db.prepare(`
+            SELECT COALESCE(SUM(amount), 0) AS total
+            FROM expenses
+            WHERE user_id = ?
+                AND date BETWEEN ? AND ?
+                AND category = ?
+        `);
+
+        const sumAllStmt = db.prepare(`
+            SELECT COALESCE(SUM(amount), 0) AS total
+            FROM expenses
+            WHERE user_id = ?
+                AND date BETWEEN ? AND ?
+        `);
+
+        const rules = rulesStmt.all(userId).map(r => ({
+            id: r.id,
+            category: r.category, // null => global
+            monthlyLimit: r.monthlyLimit,
+            periodLimit: r.monthlyLimit * factor,
+        }));
+
+        const budgets = rules.map(rule => {
+            const spent = rule.category
+                ? sumByCategoryStmt.get(userId, range.from, range.to, rule.category).total
+                : sumAllStmt.get(userId, range.from, range.to).total;
+
+            const remaining = rule.periodLimit - spent;
+
+            return {
+                id: rule.id,
+                category: rule.category,
+                periodLimit: rule.periodLimit,
+                spent,
+                remaining,
+                status: remaining < 0 ? "exceeded" : "ok",
+            };
+        });
 
         return res.json({
             view: view || "month",
@@ -175,7 +232,7 @@ router.get("/", (req, res, next) => {
             },
             upcomingSubscriptions,
             recentExpenses,
-            budgets: null, // on remplira à l’étape 6 (BudgetRule)
+            budgets,
             generatedAt: todayISO(),
         });
     } catch (e) {

@@ -6,6 +6,7 @@ const expensesRoutes = require("./routes/expensesRoutes");
 const subscriptionsRoutes = require("./routes/subscriptionsRoutes");
 const revenuesRoutes = require("./routes/revenuesRoutes");
 const homeRoutes = require("./routes/homeRoutes");
+const budgetRulesRoutes = require("./routes/budgetRulesRoutes");
 const authRoutes = require("./routes/authRoutes");
 const authMiddleware = require("./middleware/authMiddleware");
 const errorHandler = require("./middleware/errorHandler");
@@ -28,6 +29,7 @@ app.use("/api/expenses", authMiddleware, expensesRoutes);
 app.use("/api/subscriptions", authMiddleware, subscriptionsRoutes);
 app.use("/api/revenues", authMiddleware, revenuesRoutes);
 app.use("/api/home", authMiddleware, homeRoutes);
+app.use("/api/budget-rules", authMiddleware, budgetRulesRoutes);
 
 app.use(errorHandler);
 
