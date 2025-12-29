@@ -7,10 +7,7 @@ function getAllRevenues(userId) {
             amount,
             currency,
             date,
-            CASE
-                WHEN recurring_template_id IS NOT NULL THEN 'recurring'
-                ELSE type
-            END AS type,
+            type,
             description,
             recurring_template_id AS recurringTemplateId
         FROM revenues
@@ -28,10 +25,7 @@ function getRevenuesByMonth(userId, monthYYYYMM) {
             amount,
             currency,
             date,
-            CASE
-                WHEN recurring_template_id IS NOT NULL THEN 'recurring'
-                ELSE type
-            END AS type,
+            type,
             description,
             recurring_template_id AS recurringTemplateId
         FROM revenues
@@ -97,10 +91,7 @@ function updateRevenue(userId, id, { amount, currency, date, type, description }
             amount,
             currency,
             date,
-            CASE
-                WHEN recurring_template_id IS NOT NULL THEN 'recurring'
-                ELSE type
-            END AS type,
+            type,
             description,
             recurring_template_id AS recurringTemplateId
         FROM revenues

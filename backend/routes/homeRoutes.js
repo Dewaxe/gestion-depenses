@@ -115,7 +115,7 @@ router.get("/", (req, res, next) => {
             SELECT COALESCE(SUM(amount), 0) AS total
             FROM revenues
             WHERE user_id = ? AND date BETWEEN ? AND ?
-                AND (type = 'one-off') -- on ne compte pas les templates recurring
+                AND NOT (type = 'recurring' AND recurring_template_id IS NULL)
         `);
 
         const totalExpenses = sumExpensesStmt.get(userId, range.from, range.to).total;

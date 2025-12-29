@@ -81,8 +81,8 @@ describe("API /api/revenues", () => {
         expect(second.status).toBe(200);
 
         // 4) Vérifier que le nombre d'occurrences liées au template ne change pas
-        const firstOcc = first.body.filter(r => r.type === "one-off" && r.recurringTemplateId === templateId);
-        const secondOcc = second.body.filter(r => r.type === "one-off" && r.recurringTemplateId === templateId);
+        const firstOcc = first.body.filter(r => r.type === "recurring" && r.recurringTemplateId === templateId);
+        const secondOcc = second.body.filter(r => r.type === "recurring" && r.recurringTemplateId === templateId);
 
         expect(secondOcc.length).toBe(firstOcc.length);
 
@@ -129,7 +129,7 @@ describe("API /api/revenues", () => {
 
         expect(all.status).toBe(200);
 
-        const generatedOccurrences = all.body.filter(r => r.type === "one-off" && r.recurringTemplateId !== null);
+        const generatedOccurrences = all.body.filter(r => r.recurringTemplateId !== null);
         expect(generatedOccurrences.length).toBe(0);
     });
 

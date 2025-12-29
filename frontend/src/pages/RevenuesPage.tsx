@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
-import Card from "../components/Card";
-import PageTitle from "../components/PageTitle";
 import { createRevenue, deleteRevenue, getRevenues, updateRevenue } from "../api/revenuesApi";
 import { type Revenue, type RevenueInput, type RevenueType } from "../types/revenue";
+import { useNavigate } from "react-router-dom";
 
 type RevenueFormState = {
     amount: string;
@@ -35,6 +34,48 @@ function toYYYYMMDD(date: Date) {
     return `${yyyy}-${mm}-${dd}`;
 }
 
+function parseYYYYMM(month: string) {
+    const [y, m] = month.split("-").map(Number);
+    return new Date(y, m - 1, 1);
+}
+
+function addMonthsYYYYMM(month: string, delta: number) {
+    const d = parseYYYYMM(month);
+    d.setMonth(d.getMonth() + delta);
+    return toYYYYMM(d);
+}
+
+function monthLabelFR(month: string) {
+    const d = parseYYYYMM(month);
+    return new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric" }).format(d);
+}
+
+function isValidISODate(dateISO: string) {
+    return /^\d{4}-\d{2}-\d{2}$/.test(dateISO);
+}
+
+function formatAmountFR(amount: number, currency: string) {
+    const value = new Intl.NumberFormat("fr-FR", {
+        style: "currency",
+        currency: currency || "EUR",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(amount);
+
+    return `+ ${value}`;
+}
+
+function daySectionLabelFR(dateISO: string) {
+    const [y, m, d] = dateISO.split("-").map(Number);
+    const date = new Date(y, m - 1, d);
+    const label = new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "long" }).format(date);
+    return label.toUpperCase();
+}
+
+function sameDay(a: Date, b: Date) {
+    return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
+
 function RevenuesPage() {
     const [month, setMonth] = useState<string>(() => toYYYYMM(new Date()));
     const [revenues, setRevenues] = useState<Revenue[]>([]);
@@ -47,11 +88,28 @@ function RevenuesPage() {
     const [editingRevenue, setEditingRevenue] = useState<Revenue | null>(null);
     const [formError, setFormError] = useState<string | null>(null);
     const [formSubmitting, setFormSubmitting] = useState<boolean>(false);
+    const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+    const [isTypeMenuOpen, setIsTypeMenuOpen] = useState(false);
+
+    const navigate = useNavigate();
+
+    // Filtres (template)
+    const [typeFilter, setTypeFilter] = useState<"all" | RevenueType>("all");
 
     useEffect(() => {
         fetchRevenues(month);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [month]);
+
+    useEffect(() => {
+        function onDocClick(e: MouseEvent) {
+            const target = e.target as HTMLElement;
+            if (!target.closest(".type-filter")) setIsTypeMenuOpen(false);
+        }
+        document.addEventListener("click", onDocClick);
+        return () => document.removeEventListener("click", onDocClick);
+    }, []);
+
 
     async function fetchRevenues(selectedMonth: string) {
         try {
@@ -67,9 +125,24 @@ function RevenuesPage() {
         }
     }
 
+    const filteredRevenues = useMemo(() => {
+        if (typeFilter === "all") return revenues;
+        return revenues.filter((r) => r.type === typeFilter);
+    }, [revenues, typeFilter]);
+
     const totalMonth = useMemo(() => {
-        return revenues.reduce((sum, r) => sum + (typeof r.amount === "number" ? r.amount : 0), 0);
-    }, [revenues]);
+        return filteredRevenues.reduce((sum, r) => sum + (typeof r.amount === "number" ? r.amount : 0), 0);
+    }, [filteredRevenues]);
+
+    useEffect(() => {
+        function onDocClick(e: MouseEvent) {
+            const target = e.target as HTMLElement;
+            if (!target.closest(".revenue-actions")) setOpenMenuId(null);
+        }
+        document.addEventListener("click", onDocClick);
+        return () => document.removeEventListener("click", onDocClick);
+    }, []);
+
 
     function openCreateModal() {
         setModalMode("create");
@@ -136,22 +209,11 @@ function RevenuesPage() {
             setFormSubmitting(true);
 
             if (modalMode === "create") {
-                const created = await createRevenue(payload);
-                if (created.type === "recurring") {
-                    // on recharge : l’API renverra l’occurrence (et pas le template)
-                    await fetchRevenues(month);
-                } else {
-                    if (created.date.startsWith(`${month}-`)) {
-                    setRevenues((prev) => [created, ...prev]);
-                    }
-                }
+                await createRevenue(payload);
+                await fetchRevenues(month);
             } else if (modalMode === "edit" && editingRevenue) {
-                const updated = await updateRevenue(editingRevenue.id, payload);
-                if (!updated.date.startsWith(`${month}-`)) {
-                    await fetchRevenues(month);
-                } else {
-                    setRevenues((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
-                }
+                await updateRevenue(editingRevenue.id, payload);
+                await fetchRevenues(month);
             }
 
             closeModal();
@@ -164,112 +226,266 @@ function RevenuesPage() {
     }
 
     async function handleDelete(revenue: Revenue) {
-        const confirmed = window.confirm(
-            `Supprimer le revenu du ${revenue.date} (${revenue.amount} ${revenue.currency}) ?`
-        );
+        const confirmed = window.confirm(`Supprimer "${revenue.description || "Revenu"}" (${revenue.amount} ${revenue.currency}) ?`);
         if (!confirmed) return;
 
         try {
             await deleteRevenue(revenue.id);
-            setRevenues((prev) => prev.filter((r) => r.id !== revenue.id));
+            await fetchRevenues(month);
         } catch (err) {
             console.error("Erreur suppression revenu:", err);
             alert("Erreur lors de la suppression du revenu. Consultez la console pour plus de détails.");
         }
     }
 
-    return (
-        <div>
-            <div className="page-header">
-                <div className="page-header-title">
-                    <PageTitle title="Revenus" />
-                </div>
+    const grouped = useMemo(() => {
+        const list = [...filteredRevenues]
+            .filter((r) => isValidISODate(r.date))
+            .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : b.id - a.id));
 
-                <div className="page-header-action page-header-action--group">
-                    <div className="month-filter">
-                        <label className="month-filter-label" htmlFor="month">
-                            Mois
-                        </label>
-                        <input id="month" type="month" value={month} onChange={(e) => setMonth(e.target.value)} />
+        const today = new Date();
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        type Group = { label: string; items: Revenue[] };
+        const groups: Group[] = [];
+
+        const pushToGroup = (label: string, item: Revenue) => {
+            const existing = groups.find((g) => g.label === label);
+            if (existing) existing.items.push(item);
+            else groups.push({ label, items: [item] });
+        };
+
+        for (const r of list) {
+            const [y, m, d] = r.date.split("-").map(Number);
+            const dt = new Date(y, m - 1, d);
+
+            if (sameDay(dt, today)) pushToGroup("AUJOURD'HUI", r);
+            else if (sameDay(dt, yesterday)) pushToGroup("HIER", r);
+            else pushToGroup(daySectionLabelFR(r.date), r);
+        }
+
+        return groups;
+    }, [filteredRevenues]);
+
+    return (
+        <div className="revenues-page">
+            {/* Header */}
+            <div className="revenues-topbar">
+                <div className="revenues-topbar-inner">
+                    <div className="revenues-titleblock">
+                        <div className="revenues-title-row">
+                            <button
+                                type="button"
+                                className="revenues-nav-arrow"
+                                aria-label="Aller aux dépenses"
+                                onClick={() => navigate("/expenses")}
+                            >
+                                ‹
+                            </button>
+                            <h1 className="revenues-title">Revenus</h1>
+                            <button
+                                type="button"
+                                className="revenues-nav-arrow"
+                                aria-label="Aller aux abonnements"
+                                onClick={() => navigate("/subscriptions")}
+                            >
+                                ›
+                            </button>
+                        </div>
+                        <p className="revenues-subtitle">Liste et gestion de vos revenus</p>
                     </div>
 
-                    <button type="button" className="btn" onClick={openCreateModal}>
-                        + Ajouter un revenu
-                    </button>
+                    <div className="revenues-topbar-actions">
+                        <div className="month-pill">
+                            <button
+                                type="button"
+                                className="month-pill-btn"
+                                aria-label="Mois précédent"
+                                onClick={() => setMonth((m) => addMonthsYYYYMM(m, -1))}
+                            >
+                                ‹
+                            </button>
+                            <div className="month-pill-label">{monthLabelFR(month)}</div>
+                            <button
+                                type="button"
+                                className="month-pill-btn"
+                                aria-label="Mois suivant"
+                                onClick={() => setMonth((m) => addMonthsYYYYMM(m, 1))}
+                            >
+                                ›
+                            </button>
+                        </div>
+
+                        <button type="button" className="btn revenues-add-btn" onClick={openCreateModal}>
+                            + Ajouter un revenu
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            {!loading && !error && (
-                <Card>
-                    <div className="revenues-summary">
-                        <div className="revenues-summary-label">Total du mois</div>
-                        <div className="revenues-summary-value">+{totalMonth.toFixed(2)} €</div>
-                    </div>
-                </Card>
-            )}
+            {/* Filtres + Total */}
+            <div className="revenues-content">
+                <div className="revenues-toolbar">
+                    <div className="revenues-filters">
+                        <button type="button" className="filter-chip" disabled title="Bientôt disponible">
+                            <span className="filter-chip-icon">⛓️</span>
+                                Source
+                            <span className="filter-chip-caret">▾</span>
+                        </button>
 
-            {loading && <p>Chargement des revenus...</p>}
+                        {/* <div className="filter-chip filter-chip--select">
+                            <span className="filter-chip-icon">⚙️</span>
+                            <span className="filter-chip-value">
+                                {typeFilter === "all" ? "Type" : typeFilter === "one-off" ? "Ponctuel" : "Récurrent"}
+                            </span>
+                            <select
+                                aria-label="Filtrer par type"
+                                value={typeFilter}
+                                onChange={(e) => setTypeFilter(e.target.value as "all" | RevenueType)}
+                                className="filter-chip-select"
+                            >
+                                <option value="all">Tout</option>
+                                <option value="one-off">Ponctuel</option>
+                                <option value="recurring">Récurrent</option>
+                            </select>
+                            <span className="filter-chip-caret">▾</span>
+                        </div> */}
+                        <div className="filter-chip type-filter">
+                            <span className="filter-chip-icon">⚙️</span>
 
-            {error && (
-                <Card>
-                    <p className="error-text">{error}</p>
-                </Card>
-            )}
+                            <button
+                                type="button"
+                                className="filter-chip-button"
+                                onClick={() => setIsTypeMenuOpen((v) => !v)}
+                                aria-haspopup="menu"
+                                aria-expanded={isTypeMenuOpen}
+                            >
+                                <span className="filter-chip-value">
+                                {typeFilter === "all"
+                                    ? "Tout"
+                                    : typeFilter === "one-off"
+                                    ? "Ponctuel"
+                                    : "Récurrent"}
+                                </span>
+                                <span className="filter-chip-caret">▾</span>
+                            </button>
 
-            {!loading && !error && (
-                <Card>
-                    <h2 className="revenues-list-title">Liste des revenus</h2>
-
-                    {revenues.length === 0 ? (
-                        <p>Aucun revenu pour ce mois.</p>
-                    ) : (
-                        <div className="revenues-list">
-                            {revenues.map((revenue) => (
-                                <Card key={revenue.id}>
-                                    <div className="revenue-card-header">
-                                        <div>
-                                            <div className="list-item-title">
-                                                {revenue.type === "recurring" ? "Récurrent" : "Ponctuel"} — {revenue.amount}{" "}
-                                                {revenue.currency}
-                                            </div>
-                                            <div className="list-item-meta">Date : {revenue.date}</div>
-                                            {revenue.description && <div className="list-item-meta">{revenue.description}</div>}
-                                        </div>
-
-                                        <div>
-                                            <button
-                                                type="button"
-                                                className="icon-button"
-                                                onClick={() => openEditModal(revenue)}
-                                                aria-label="Modifier le revenu"
-                                                title="Modifier"
-                                            >
-                                                ✏️
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className="icon-button"
-                                                onClick={() => handleDelete(revenue)}
-                                                aria-label="Supprimer le revenu"
-                                                title="Supprimer"
-                                            >
-                                                🗑️
-                                            </button>
-                                        </div>
-                                    </div>
-                                </Card>
-                            ))}
+                            {isTypeMenuOpen && (
+                                <div className="filter-menu" role="menu">
+                                <button
+                                    type="button"
+                                    className="filter-menu-item"
+                                    onClick={() => { setTypeFilter("all"); setIsTypeMenuOpen(false); }}
+                                >
+                                    Tout
+                                </button>
+                                <button
+                                    type="button"
+                                    className="filter-menu-item"
+                                    onClick={() => { setTypeFilter("one-off"); setIsTypeMenuOpen(false); }}
+                                >
+                                    Ponctuel
+                                </button>
+                                <button
+                                    type="button"
+                                    className="filter-menu-item"
+                                    onClick={() => { setTypeFilter("recurring"); setIsTypeMenuOpen(false); }}
+                                >
+                                    Récurrent
+                                </button>
+                                </div>
+                            )}
                         </div>
-                    )}
-                </Card>
-            )}
+                    </div>
 
+                    <div className="revenues-total">
+                        <div className="revenues-total-label">Total du mois</div>
+                        <div className="revenues-total-value">{formatAmountFR(totalMonth, "EUR")}</div>
+                    </div>
+                </div>
+
+                {/* États */}
+                {loading && <p>Chargement des revenus...</p>}
+
+                {!loading && error && <p className="error-text">{error}</p>}
+
+                {!loading && !error && grouped.length === 0 && <p>Aucun revenu pour ce mois.</p>}
+
+                {/* Liste */}
+                {!loading && !error && grouped.length > 0 && (
+                    <div className="revenues-list">
+                        {grouped.map((g) => (
+                            <div key={g.label} className="revenues-group">
+                                <div className="revenues-group-label">{g.label}</div>
+
+                                <div className="revenues-group-items">
+                                    {g.items.map((r) => {
+                                        const title = r.description?.trim() || (r.type === "recurring" ? "Revenu récurrent" : "Revenu");
+                                        const metaLeft = r.type === "recurring" ? "Récurrent" : "Ponctuel";
+
+                                        return (
+                                            <div key={r.id} className="revenue-row">
+                                                <div className="revenue-row-left">
+                                                    <div className={`revenue-icon ${r.type === "recurring" ? "revenue-icon--blue" : "revenue-icon--green"}`}>
+                                                        {r.type === "recurring" ? "💼" : "🏷️"}
+                                                    </div>
+
+                                                    <div className="revenue-text">
+                                                        <div className="revenue-title">
+                                                            {title}
+                                                            {r.type === "recurring" && <span className="revenue-badge">FIXE</span>}
+                                                        </div>
+                                                        <div className="revenue-meta">
+                                                            <span className="revenue-tag">{metaLeft}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="revenue-row-right">
+                                                    <div className="revenue-amount">{formatAmountFR(r.amount, r.currency || "EUR")}</div>
+
+                                                    <div className="revenue-actions">
+                                                        <button
+                                                            type="button"
+                                                            className="kebab-button"
+                                                            aria-label="Actions"
+                                                            onClick={() => setOpenMenuId((cur) => (cur === r.id ? null : r.id))}
+                                                        >
+                                                            ⋯
+                                                        </button>
+
+                                                        {openMenuId === r.id && (
+                                                            <div className="kebab-menu" role="menu">
+                                                            <button type="button" className="kebab-item" onClick={() => { setOpenMenuId(null); openEditModal(r); }}>
+                                                                Modifier
+                                                            </button>
+                                                            <button type="button" className="kebab-item kebab-item--danger" onClick={() => { setOpenMenuId(null); handleDelete(r); }}>
+                                                                Supprimer
+                                                            </button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+            
+
+            {/* Modale */}
             {isModalOpen && (
                 <div className="modal-overlay">
                     <div className="modal">
                         <h2 className="modal-title">{modalMode === "create" ? "Ajouter un revenu" : "Modifier le revenu"}</h2>
 
-                        {formError && <p className="error-text--spaced">{formError}</p>}
+                            {formError && <p className="error-text--spaced">{formError}</p>}
 
                         <form onSubmit={handleSubmit}>
                             <div className="form-group">

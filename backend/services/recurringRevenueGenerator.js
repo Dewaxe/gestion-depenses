@@ -31,12 +31,6 @@ function todayISO() {
     return `${yyyy}-${mm}-${dd}`;
 }
 
-/**
- * Génère (idempotent) les occurrences mensuelles des revenus récurrents jusqu'à limitDateISO.
- * - Le template est une ligne revenues.type='recurring' avec recurring_template_id NULL
- * - Les occurrences sont revenues.type='one-off' avec recurring_template_id = template.id
- * - Pas de génération future (limite réelle = min(limit, today))
- */
 function generateRecurringRevenuesUpTo(userId, limitDateISO) {
     const limit = parseISODate(limitDateISO);
     const today = parseISODate(todayISO());
@@ -65,7 +59,7 @@ function generateRecurringRevenuesUpTo(userId, limitDateISO) {
 
     const insertOccurrence = db.prepare(`
         INSERT INTO revenues (user_id, amount, currency, date, type, recurring_template_id, description)
-        VALUES (?, ?, ?, ?, 'one-off', ?, ?)
+        VALUES (?, ?, ?, ?, 'recurring', ?, ?)
     `);
 
     const templates = selectTemplates.all(userId);
