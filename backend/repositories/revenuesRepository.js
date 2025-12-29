@@ -7,10 +7,15 @@ function getAllRevenues(userId) {
             amount,
             currency,
             date,
-            type,
-            description
+            CASE
+                WHEN recurring_template_id IS NOT NULL THEN 'recurring'
+                ELSE type
+            END AS type,
+            description,
+            recurring_template_id AS recurringTemplateId
         FROM revenues
         WHERE user_id = ?
+            AND NOT (type = 'recurring' AND recurring_template_id IS NULL)
         ORDER BY date DESC, id DESC
     `);
     return stmt.all(userId);
@@ -23,10 +28,16 @@ function getRevenuesByMonth(userId, monthYYYYMM) {
             amount,
             currency,
             date,
-            type,
-            description
+            CASE
+                WHEN recurring_template_id IS NOT NULL THEN 'recurring'
+                ELSE type
+            END AS type,
+            description,
+            recurring_template_id AS recurringTemplateId
         FROM revenues
-        WHERE user_id = ? AND date LIKE ?
+        WHERE user_id = ?
+            AND date LIKE ?
+            AND NOT (type = 'recurring' AND recurring_template_id IS NULL)
         ORDER BY date DESC, id DESC
     `);
     return stmt.all(userId, `${monthYYYYMM}-%`);
@@ -86,8 +97,12 @@ function updateRevenue(userId, id, { amount, currency, date, type, description }
             amount,
             currency,
             date,
-            type,
-            description
+            CASE
+                WHEN recurring_template_id IS NOT NULL THEN 'recurring'
+                ELSE type
+            END AS type,
+            description,
+            recurring_template_id AS recurringTemplateId
         FROM revenues
         WHERE id = ? AND user_id = ?
     `);

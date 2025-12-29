@@ -58,9 +58,8 @@ function generateRecurringRevenuesUpTo(userId, limitDateISO) {
         SELECT 1
         FROM revenues
         WHERE user_id = ?
-        AND type = 'one-off'
-        AND recurring_template_id = ?
-        AND date = ?
+            AND recurring_template_id = ?
+            AND date = ?
         LIMIT 1
     `);
 

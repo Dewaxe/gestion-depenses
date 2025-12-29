@@ -632,3 +632,52 @@ textarea:focus {
 .app-sidebar-user {
   padding-top: 12px;
 }
+
+/* Page Revenus */
+
+.page-header-action--group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.month-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.month-filter-label {
+  font-size: 0.95rem;
+}
+
+.revenues-list-title { margin-bottom: 1rem; }
+
+.revenues-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.revenue-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.revenues-summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.revenues-summary-label { opacity: 0.75; }
+
+.revenues-summary-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
