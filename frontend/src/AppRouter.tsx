@@ -8,6 +8,7 @@ import ExpensesPage from "./pages/ExpensesPage";
 import SubscriptionsPage from "./pages/SubscriptionsPage";
 import AnalysisPage from "./pages/AnalysisPage";
 import RevenuesPage from "./pages/RevenuesPage";
+import SettingsPage from "./pages/SettingsPage";
 
 export function AppRouter() {
     return (
@@ -21,8 +22,8 @@ export function AppRouter() {
                     <Route path="expenses" element={<ProtectedRoute><ExpensesPage /></ProtectedRoute>} />
                     <Route path="subscriptions" element={<ProtectedRoute><SubscriptionsPage /></ProtectedRoute>} />
                     <Route path="revenues" element={<ProtectedRoute><RevenuesPage /></ProtectedRoute>} />
-                    {/* <Route path="import" element={<ProtectedRoute><ImportPage /></ProtectedRoute>} />
-                    <Route path="settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} /> */}
+                    {/* <Route path="import" element={<ProtectedRoute><ImportPage /></ProtectedRoute>} /> */}
+                    <Route path="settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
                 </Route>
             </Routes>
         </BrowserRouter>
