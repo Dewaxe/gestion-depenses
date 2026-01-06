@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
 html, body, #root {
   height: 100%;
 }
@@ -12,6 +14,7 @@ html, body, #root {
   --color-border: #ddd;
 
   --app-main-padding: 24px;
+  --font-ui: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
 }
 
 .app-root {
@@ -23,7 +26,7 @@ html, body, #root {
 body {
   margin: 0;
   padding: 0;
-  font-family: system-ui, sans-serif;
+  font-family: var(--font-ui);
   background-color: var(--color-bg);
   color: var(--color-text);
   overflow: hidden;
@@ -862,13 +865,22 @@ textarea:focus {
 }
 
 /* Force une typographie 100% cohérente dans les chips */
-.filter-chip,
-.filter-chip * {
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans";
-  font-size: 0.95rem;
+
+.filter-chip {
+  font-family: var(--font-ui);
   font-weight: 600;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  color: #6b7280; /* comme ton template : gris, pas noir */
+}
+
+.filter-chip-value {
+  color: #111827;
+  font-weight: 600;
+}
+
+.filter-chip-caret {
+  opacity: 0.6;
 }
 
 /* Et surtout : le select doit hériter strictement (sinon il garde un rendu natif différent) */
@@ -1073,12 +1085,11 @@ textarea:focus {
 .revenues-title,
 .revenue-title,
 .revenue-amount,
-.revenues-total-value {
-  font-family: sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Liberation Sans";
-}
-
-.revenue-title {
-  font-weight: 800;
+.revenues-total-value,
+.revenue-badge,
+.revenue-tag,
+.filter-chip-value {
+  font-family: var(--font-ui);
 }
 
 .revenue-amount,
