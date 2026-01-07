@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "
 import { createRevenue, deleteRevenue, getRevenues, updateRevenue } from "../api/revenuesApi";
 import { type Revenue, type RevenueInput, type RevenueType } from "../types/revenue";
 import { useNavigate } from "react-router-dom";
+import "../styles/pages/RevenuesPage.css";
 
 type RevenueFormState = {
     amount: string;
@@ -137,7 +138,7 @@ function RevenuesPage() {
     useEffect(() => {
         function onDocClick(e: MouseEvent) {
             const target = e.target as HTMLElement;
-            if (!target.closest(".revenue-actions")) setOpenMenuId(null);
+            if (!target.closest(".entry-actions")) setOpenMenuId(null);
         }
         document.addEventListener("click", onDocClick);
         return () => document.removeEventListener("click", onDocClick);
@@ -271,45 +272,45 @@ function RevenuesPage() {
     return (
         <div className="revenues-page">
             {/* Header */}
-            <div className="revenues-topbar">
-                <div className="revenues-topbar-inner">
-                    <div className="revenues-titleblock">
-                        <div className="revenues-title-row">
+            <div className="page-topbar">
+                <div className="page-topbar-inner">
+                    <div className="page-header">
+                        <div className="page-header-row">
                             <button
                                 type="button"
-                                className="revenues-nav-arrow"
+                                className="nav-arrow"
                                 aria-label="Aller aux dépenses"
                                 onClick={() => navigate("/expenses")}
                             >
                                 ‹
                             </button>
-                            <h1 className="revenues-title">Revenus</h1>
+                            <h1 className="page-title">Revenus</h1>
                             <button
                                 type="button"
-                                className="revenues-nav-arrow"
+                                className="nav-arrow"
                                 aria-label="Aller aux abonnements"
                                 onClick={() => navigate("/subscriptions")}
                             >
                                 ›
                             </button>
                         </div>
-                        <p className="revenues-subtitle">Liste et gestion de vos revenus</p>
+                        <p className="page-subtitle">Liste et gestion de vos revenus</p>
                     </div>
 
-                    <div className="revenues-topbar-actions">
-                        <div className="month-pill">
+                    <div className="page-topbar-actions">
+                        <div className="month-switch">
                             <button
                                 type="button"
-                                className="month-pill-btn"
+                                className="month-switch-btn"
                                 aria-label="Mois précédent"
                                 onClick={() => setMonth((m) => addMonthsYYYYMM(m, -1))}
                             >
                                 ‹
                             </button>
-                            <div className="month-pill-label">{monthLabelFR(month)}</div>
+                            <div className="month-switch-label">{monthLabelFR(month)}</div>
                             <button
                                 type="button"
-                                className="month-pill-btn"
+                                className="month-switch-btn"
                                 aria-label="Mois suivant"
                                 onClick={() => setMonth((m) => addMonthsYYYYMM(m, 1))}
                             >
@@ -317,7 +318,7 @@ function RevenuesPage() {
                             </button>
                         </div>
 
-                        <button type="button" className="btn revenues-add-btn" onClick={openCreateModal}>
+                        <button type="button" className="btn page-add-btn" onClick={openCreateModal}>
                             + Ajouter un revenu
                         </button>
                     </div>
@@ -325,32 +326,15 @@ function RevenuesPage() {
             </div>
 
             {/* Filtres + Total */}
-            <div className="revenues-content">
-                <div className="revenues-toolbar">
-                    <div className="revenues-filters">
+            <div className="page-content">
+                <div className="page-toolbar">
+                    <div className="filters">
                         <button type="button" className="filter-chip" disabled title="Bientôt disponible">
                             <span className="filter-chip-icon">⛓️</span>
                                 Source
                             <span className="filter-chip-caret">▾</span>
                         </button>
 
-                        {/* <div className="filter-chip filter-chip--select">
-                            <span className="filter-chip-icon">⚙️</span>
-                            <span className="filter-chip-value">
-                                {typeFilter === "all" ? "Type" : typeFilter === "one-off" ? "Ponctuel" : "Récurrent"}
-                            </span>
-                            <select
-                                aria-label="Filtrer par type"
-                                value={typeFilter}
-                                onChange={(e) => setTypeFilter(e.target.value as "all" | RevenueType)}
-                                className="filter-chip-select"
-                            >
-                                <option value="all">Tout</option>
-                                <option value="one-off">Ponctuel</option>
-                                <option value="recurring">Récurrent</option>
-                            </select>
-                            <span className="filter-chip-caret">▾</span>
-                        </div> */}
                         <div className="filter-chip type-filter">
                             <span className="filter-chip-icon">⚙️</span>
 
@@ -399,9 +383,9 @@ function RevenuesPage() {
                         </div>
                     </div>
 
-                    <div className="revenues-total">
-                        <div className="revenues-total-label">Total du mois</div>
-                        <div className="revenues-total-value">{formatAmountFR(totalMonth, "EUR")}</div>
+                    <div className="page-kpi">
+                        <div className="page-kpi-label">Total du mois</div>
+                        <div className="page-kpi-value">{formatAmountFR(totalMonth, "EUR")}</div>
                     </div>
                 </div>
 
@@ -414,38 +398,38 @@ function RevenuesPage() {
 
                 {/* Liste */}
                 {!loading && !error && grouped.length > 0 && (
-                    <div className="revenues-list">
+                    <div className="grouped-list">
                         {grouped.map((g) => (
                             <div key={g.label} className="revenues-group">
-                                <div className="revenues-group-label">{g.label}</div>
+                                <div className="group-label">{g.label}</div>
 
-                                <div className="revenues-group-items">
+                                <div className="group-items">
                                     {g.items.map((r) => {
                                         const title = r.description?.trim() || (r.type === "recurring" ? "Revenu récurrent" : "Revenu");
                                         const metaLeft = r.type === "recurring" ? "Récurrent" : "Ponctuel";
 
                                         return (
-                                            <div key={r.id} className="revenue-row">
-                                                <div className="revenue-row-left">
-                                                    <div className={`revenue-icon ${r.type === "recurring" ? "revenue-icon--blue" : "revenue-icon--green"}`}>
+                                            <div key={r.id} className="entry-row">
+                                                <div className="entry-row-left">
+                                                    <div className={`entry-icon ${r.type === "recurring" ? "entry-icon--blue" : "entry-icon--green"}`}>
                                                         {r.type === "recurring" ? "💼" : "🏷️"}
                                                     </div>
 
-                                                    <div className="revenue-text">
-                                                        <div className="revenue-title">
+                                                    <div className="entry-text">
+                                                        <div className="entry-title">
                                                             {title}
-                                                            {r.type === "recurring" && <span className="revenue-badge">FIXE</span>}
+                                                            {r.type === "recurring" && <span className="entry-badge">FIXE</span>}
                                                         </div>
-                                                        <div className="revenue-meta">
-                                                            <span className="revenue-tag">{metaLeft}</span>
+                                                        <div className="entry-meta">
+                                                            <span className="meta-chip">{metaLeft}</span>
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <div className="revenue-row-right">
-                                                    <div className="revenue-amount">{formatAmountFR(r.amount, r.currency || "EUR")}</div>
+                                                <div className="entry-row-right">
+                                                    <div className="entry-amount">{formatAmountFR(r.amount, r.currency || "EUR")}</div>
 
-                                                    <div className="revenue-actions">
+                                                    <div className="entry-actions">
                                                         <button
                                                             type="button"
                                                             className="kebab-button"

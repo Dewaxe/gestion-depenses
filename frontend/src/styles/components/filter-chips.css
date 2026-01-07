@@ -1,0 +1,113 @@
+/* Filter chips + menus (shared) */
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid #e6e6ee;
+  background: #fff;
+  justify-content: space-between;
+
+  /* Typography: match template */
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  color: #6b7280;
+}
+
+.filter-chip:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.filter-chip-icon {
+  opacity: 0.75;
+}
+
+.filter-chip-caret {
+  opacity: 0.6;
+  font-size: 0.9rem;
+}
+
+.filter-chip-value {
+  color: #111827;
+  font-weight: 700;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* Select-as-chip */
+.filter-chip--select {
+  position: relative;
+  padding-right: 0.85rem;
+}
+
+.filter-chip-select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.filter-chip select {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+/* Custom menu variant (Type menu) */
+.type-filter {
+  position: relative;
+  display: inline-flex;
+  width: fit-content;
+  padding: 0.35rem 0.6rem;
+}
+
+.filter-chip-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  border: none;
+  background: transparent;
+  padding: 0.25rem 0.2rem;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  width: auto;
+}
+
+.filter-menu {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 8px);
+  background: #fff;
+  border: 1px solid #ededf5;
+  border-radius: 14px;
+  box-shadow: 0 16px 30px rgba(17, 24, 39, 0.12);
+  overflow: hidden;
+  z-index: 60;
+}
+
+.filter-menu-item {
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 0.85rem;
+  border: none;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.filter-menu-item:hover {
+  background: #f6f7fb;
+}
+
+/* Optional min widths used in pages */
+.source-filter {
+  min-width: 160px;
+}

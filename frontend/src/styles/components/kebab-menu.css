@@ -1,0 +1,44 @@
+/* Kebab (3-dots) menu (shared) */
+
+.kebab-button {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid #e6e6ee;
+  background: #fff;
+  font-size: 1.35rem;
+  line-height: 0;
+  display: grid;
+  place-items: center;
+}
+
+.kebab-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  background: #fff;
+  border: 1px solid #ededf5;
+  border-radius: 12px;
+  box-shadow: 0 16px 30px rgba(17, 24, 39, 0.12);
+  overflow: hidden;
+  min-width: 150px;
+  z-index: 50;
+}
+
+.kebab-item {
+  width: 100%;
+  text-align: left;
+  padding: 0.65rem 0.8rem;
+  border: none;
+  background: transparent;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.kebab-item:hover {
+  background: #f6f7fb;
+}
+
+.kebab-item--danger {
+  color: #ef4444;
+}

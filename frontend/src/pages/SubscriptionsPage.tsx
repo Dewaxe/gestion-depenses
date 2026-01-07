@@ -3,6 +3,7 @@ import { type Subscription, type SubscriptionInput } from "../types/subscription
 import { getSubscriptions, createSubscription, updateSubscription, deleteSubscription } from "../api/subscriptionsApi";
 import Card from "../components/Card";
 import PageTitle from "../components/PageTitle";
+import "../styles/pages/SubscriptionsPage.css"
 
 type SubscriptionFormState = {
     name: string;

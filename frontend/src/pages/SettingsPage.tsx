@@ -1,6 +1,6 @@
 import { LogOut } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
-import "./SettingsPage.css";
+import "../styles/pages/SettingsPage.css";
 import { useState } from "react";
 
 export default function SettingsPage() {

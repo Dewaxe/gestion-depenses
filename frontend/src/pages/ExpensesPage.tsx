@@ -3,6 +3,7 @@ import { type Expense, type ExpenseInput } from "../types/expense";
 import { getExpenses, createExpense, updateExpense, deleteExpense } from "../api/expensesApi";
 import Card from "../components/Card";
 import PageTitle from "../components/PageTitle";
+import "../styles/pages/ExpensesPage.css"
 
 type ExpenseFormState = {
     amount: string;

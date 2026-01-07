@@ -1,0 +1,100 @@
+/* Overlay de la modale */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.35); /* voile sombre */
+  backdrop-filter: blur(2px);               /* léger flou derrière */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50; /* au-dessus de la navbar */
+}
+
+.modal {
+  width: 100%;
+  max-width: 360px;
+  background-color: #ffffff;
+  border-radius: 1rem;
+  padding: 1.5rem 1.5rem 1.25rem;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.25);
+  animation: modal-pop-in 0.16s ease-out;
+}
+
+.modal-title {
+  margin-bottom: 1rem;
+}
+
+/* Titre / texte de la modale */
+.modal p {
+  margin: 0 0 1.25rem;
+  font-size: 0.95rem;
+  color: #111827;
+}
+
+/* Zone boutons */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* Boutons dans la modale */
+.modal-actions button {
+  border: none;
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.12s ease, transform 0.05s ease, box-shadow 0.08s ease;
+}
+
+/* Bouton "Annuler" = plus discret */
+.modal-actions button:first-child {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.modal-actions button:first-child:hover {
+  background-color: #e5e7eb;
+}
+
+/* Bouton "Se déconnecter" = couleur principale */
+.modal-actions button:last-child {
+  background-image: linear-gradient(135deg, #4f46e5, #6366f1);
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(79, 70, 229, 0.35);
+}
+
+.modal-actions button:last-child:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 11px 24px rgba(79, 70, 229, 0.4);
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+/* Petite anim d'apparition */
+@keyframes modal-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Responsive léger */
+@media (max-width: 480px) {
+  .modal {
+    margin: 0 1rem;
+    padding: 1.25rem 1.25rem 1rem;
+  }
+
+  .modal-actions {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+}

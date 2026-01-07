@@ -1,0 +1,56 @@
+button {
+  cursor: pointer;
+}
+
+.btn,
+.btn-secondary {
+  font-size: 1rem;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+  width: fit-content;
+}
+
+/* Variante principale */
+.btn {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.btn:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.btn:active {
+  background-color: var(--color-primary-active);
+}
+
+.btn:disabled {
+  background-color: #a5a5a5;
+  cursor: not-allowed;
+}
+
+/* Variante secondaire (Annuler, Fermer, etc.) */
+.btn-secondary {
+  background-color: #e5e5e5;
+  color: #333;
+}
+
+.btn-secondary:hover {
+  background-color: #d4d4d4;
+}
+
+/* Bouton d'icône (modifier / supprimer) */
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  margin-left: 0.25rem;
+  font-size: 1rem;
+}
+
+.icon-button:hover {
+  opacity: 0.8;
+}

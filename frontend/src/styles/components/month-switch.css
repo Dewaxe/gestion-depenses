@@ -1,0 +1,29 @@
+/* Month switch pill (shared) */
+
+.month-switch {
+  display: grid;
+  grid-template-columns: 36px auto 36px;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem;
+  border: 1px solid #e6e6ee;
+  background: #fff;
+  border-radius: 999px;
+  min-width: 220px;
+}
+
+.month-switch-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  font-size: 1.1rem;
+}
+
+.month-switch-label {
+  text-align: center;
+  font-weight: 600;
+  color: #111827;
+  text-transform: capitalize; /* "décembre 2025" */
+}

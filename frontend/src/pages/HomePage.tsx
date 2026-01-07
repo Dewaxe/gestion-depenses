@@ -3,6 +3,7 @@ import PageTitle from "../components/PageTitle";
 import Card from "../components/Card";
 import { getHome } from "../api/homeApi";
 import type { HomeResponse, HomeView } from "../types/home";
+import "../styles/pages/HomePage.css"
 
 function getCurrentMonthYYYYMM() {
     const d = new Date();

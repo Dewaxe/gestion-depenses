@@ -1,0 +1,36 @@
+/* Revenues page theme (colors / variants) */
+
+/* Amount & KPI color */
+.page-kpi-value,
+.entry-amount {
+  color: #10b981;
+}
+
+/* Entry icon variants */
+.entry-icon--blue {
+  background: #eef2ff;
+  color: #1d4ed8;
+}
+
+.entry-icon--green {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+/* Primary action button (template-like) */
+.btn.page-add-btn {
+  border-radius: 999px;
+  padding: 0.65rem 1.05rem;
+  background: #2563eb;
+  border: 1px solid rgba(37, 99, 235, 0.35);
+  box-shadow: 0 10px 18px rgba(37, 99, 235, 0.18);
+}
+
+.btn.page-add-btn:hover {
+  filter: brightness(0.98);
+}
+
+.btn.page-add-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 7px 14px rgba(37, 99, 235, 0.16);
+}

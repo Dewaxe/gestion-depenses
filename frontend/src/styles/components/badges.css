@@ -1,0 +1,22 @@
+/* Small badges / tags (shared) */
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-right: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.tag--recurring {
+  opacity: 0.9;
+}
+
+/* Default badge style used in list rows */
+.entry-badge {
+  background: #e0e7ff;
+  color: #1d4ed8;
+}
