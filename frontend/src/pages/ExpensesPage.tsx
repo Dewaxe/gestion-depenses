@@ -113,6 +113,8 @@ function ExpensesPage() {
 
     const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
+    const [isModalClosing, setIsModalClosing] = useState(false);
+
     // Filtres (utiles ?)
     const [categoryFilter, setCategoryFilter] = useState<string>("all");
     const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
@@ -227,10 +229,15 @@ function ExpensesPage() {
     }
 
     function closeModal() {
-        setIsModalOpen(false);
-        setEditingExpense(null);
-        setFormError(null);
+        setIsModalClosing(true);
+        window.setTimeout(() => {
+            setIsModalOpen(false);
+            setEditingExpense(null);
+            setFormError(null);
+            setIsModalClosing(false);
+        }, 160);
     }
+
 
     function handleInputChange(event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
         const { name, value } = event.target;
@@ -241,7 +248,7 @@ function ExpensesPage() {
         event.preventDefault();
 
         if (!form.amount || !form.date || !form.category) {
-            setFormError("Les champs Montant, Date et Catégorie sont obligatoires.");
+            setFormError("Veuillez remplir tous les champs obligatoires.");
             return;
         }
 
@@ -498,70 +505,79 @@ function ExpensesPage() {
 
             {/* Modale */}
             {isModalOpen && (
-                <div className="modal-overlay">
-                    <div className="modal">
+                <div className={`modal-overlay ${isModalClosing ? "is-closing" : ""}`}>
+                    <div className={`modal ${isModalClosing ? "is-closing" : ""}`}>
                         <h2 className="modal-title">{modalMode === "create" ? "Ajouter une dépense" : "Modifier la dépense"}</h2>
 
                         {formError && <p className="error-text--spaced">{formError}</p>}
 
+                        
+
                         <form onSubmit={handleSubmit}>
-                            <div className="form-group">
-                                <label htmlFor="amount">Montant *</label>
-                                <input
-                                    id="amount"
-                                    name="amount"
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    value={form.amount}
-                                    onChange={handleInputChange}
-                                />
-                            </div>
+                            <div className="form-grid">
+                                <div className="form-group form-group--span-2">
+                                    <label htmlFor="description">Titre</label>
+                                    <input
+                                        id="description"
+                                        name="description"
+                                        type="text"
+                                        value={form.description}
+                                        onChange={handleInputChange}
+                                    />
+                                </div>
 
-                            <div className="form-group">
-                                <label htmlFor="currency">Devise</label>
-                                <input id="currency" name="currency" type="text" value={form.currency} onChange={handleInputChange} />
-                            </div>
+                                <div className="form-group">
+                                    <label htmlFor="amount">Montant *</label>
+                                    <input
+                                        id="amount"
+                                        name="amount"
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        value={form.amount}
+                                        onChange={handleInputChange}
+                                    />
+                                </div>
 
-                            <div className="form-group">
-                                <label htmlFor="date">Date *</label>
-                                <input id="date" name="date" type="date" value={form.date} onChange={handleInputChange} />
-                            </div>
+                                <div className="form-group">
+                                    <label htmlFor="paymentMethod">Moyen de paiement</label>
+                                    <input
+                                        id="paymentMethod"
+                                        name="paymentMethod"
+                                        type="text"
+                                        value={form.paymentMethod}
+                                        onChange={handleInputChange}
+                                    />
+                                </div>
 
-                            <div className="form-group">
-                                <label htmlFor="category">Catégorie *</label>
-                                <input id="category" name="category" type="text" value={form.category} onChange={handleInputChange} />
-                            </div>
+                                {/* gestion de devise pas encore en place */}
+                                {/* <div className="form-group">
+                                    <label htmlFor="currency">Devise</label>
+                                    <input id="currency" name="currency" type="text" value={form.currency} onChange={handleInputChange} />
+                                </div> */}
 
-                            <div className="form-group">
-                                <label htmlFor="paymentMethod">Moyen de paiement</label>
-                                <input
-                                    id="paymentMethod"
-                                    name="paymentMethod"
-                                    type="text"
-                                    value={form.paymentMethod}
-                                    onChange={handleInputChange}
-                                />
-                            </div>
+                                <div className="form-group">
+                                    <label htmlFor="date">Date *</label>
+                                    <input id="date" name="date" type="date" value={form.date} onChange={handleInputChange} />
+                                </div>
 
-                            <div className="form-group">
-                                <label htmlFor="description">Description</label>
-                                <textarea
-                                    id="description"
-                                    name="description"
-                                    value={form.description}
-                                    onChange={handleInputChange}
-                                    rows={3}
-                                />
+                                <div className="form-group">
+                                    <label htmlFor="category">Catégorie *</label>
+                                    <input id="category" name="category" type="text" value={form.category} onChange={handleInputChange} />
+                                </div>
                             </div>
-
+                            
+                            
                             <div className="modal-actions">
-                                <button type="button" className="btn-secondary" onClick={closeModal} disabled={formSubmitting}>
-                                    Annuler
-                                </button>
-                                <button type="submit" className="btn" disabled={formSubmitting}>
-                                    {formSubmitting ? "Enregistrement..." : modalMode === "create" ? "Enregistrer" : "Mettre à jour"}
-                                </button>
+                                <div className="modal-required-hint">* Champs obligatoires</div>
+                                <div className="modal-actions-right">
+                                    <button type="button" className="btn-secondary" onClick={closeModal} disabled={formSubmitting}>
+                                        Annuler
+                                    </button>
+                                    <button type="submit" className="btn" disabled={formSubmitting}>
+                                        {formSubmitting ? "Enregistrement..." : modalMode === "create" ? "Enregistrer" : "Mettre à jour"}
+                                    </button>
+                                </div>
                             </div>
                         </form>
                     </div>
