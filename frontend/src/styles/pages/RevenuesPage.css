@@ -1,8 +1,8 @@
 /* Revenues page theme (colors / variants) */
 
 /* Amount & KPI color */
-.page-kpi-value,
-.entry-amount {
+.revenues-page .page-kpi-value,
+.revenues-page .entry-amount {
   color: #10b981;
 }
 

@@ -1,16 +1,31 @@
-.expenses-list-title {
-  margin-bottom: 1rem;
+/* Expenses page theme (colors / variants) */
+
+/* Amount & KPI color */
+.expenses-page .page-kpi-value,
+.expenses-page .entry-amount {
+  color: #ef4444;
 }
 
-.expenses-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+/* Entry icon variants */
+.entry-icon--red {
+  background: #fef2f2;
+  color: #b91c1c;
 }
 
-.expense-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0.5rem;
+/* Primary action button */
+.btn.page-add-btn {
+  border-radius: 999px;
+  padding: 0.65rem 1.05rem;
+  background: #2563eb;
+  border: 1px solid rgba(37, 99, 235, 0.35);
+  box-shadow: 0 10px 18px rgba(37, 99, 235, 0.18);
+}
+
+.btn.page-add-btn:hover {
+  filter: brightness(0.98);
+}
+
+.btn.page-add-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 7px 14px rgba(37, 99, 235, 0.16);
 }

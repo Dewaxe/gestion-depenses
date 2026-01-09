@@ -1,8 +1,9 @@
 import { apiFetch } from "./client";
 import { type Expense, type ExpenseInput } from "../types/expense";
 
-export async function getExpenses(): Promise<Expense[]> {
-    return apiFetch<Expense[]>("/api/expenses");    
+export async function getExpenses(month?: string): Promise<Expense[]> {
+    const query = month ? `?month=${encodeURIComponent(month)}` : "";
+    return apiFetch<Expense[]>(`/api/expenses${query}`);
 }
 
 export async function createExpense(payload: ExpenseInput): Promise<Expense> {
