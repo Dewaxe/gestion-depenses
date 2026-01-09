@@ -300,6 +300,8 @@ function ExpensesPage() {
         }
     }
 
+    const hasCategories = categories.length > 0;
+
     return (
         <div className="expenses-page">
             {/* Header */}
@@ -360,31 +362,42 @@ function ExpensesPage() {
             <div className="page-content">
                 <div className="page-toolbar">
                     <div className="filters">
+                        {/* Source */}
                         <button type="button" className="filter-chip" disabled title="Bientôt disponible">
                             <span className="filter-chip-icon">⛓️</span>
-                            Source
+                                Source
                             <span className="filter-chip-caret">▾</span>
                         </button>
 
-                        <div className="filter-chip category-filter">
-                            <span className="filter-chip-icon">🏷️</span>
-
+                        {/* Catégorie */}
+                        <div className="category-filter">
                             <button
                                 type="button"
-                                className="filter-chip-button"
-                                onClick={() => setIsCategoryMenuOpen((v) => !v)}
+                                className={`filter-chip filter-chip--dropdown ${isCategoryMenuOpen || categoryFilter !== "all" ? "filter-chip--active" : ""}`}
+                                disabled={!hasCategories}
+                                title={!hasCategories ? "Aucune catégorie" : undefined}
+                                onClick={(e) => {
+                                    if (!hasCategories) return;
+                                    e.stopPropagation();
+                                    setIsCategoryMenuOpen((v) => !v);
+                                }}
                                 aria-haspopup="menu"
                                 aria-expanded={isCategoryMenuOpen}
                             >
-                                <span className="filter-chip-value">{categoryFilter === "all" ? "Toutes" : categoryFilter}</span>
-                                <span className="filter-chip-caret">▾</span>
+                            <span className="filter-chip-icon">🏷️</span>
+                            {categoryFilter === "all" ? "Catégorie" : `${categoryFilter}`}
+                            <span className="filter-chip-caret">▾</span>
                             </button>
 
-                            {isCategoryMenuOpen && (
-                                <div className="filter-menu" role="menu">
+                            {hasCategories && isCategoryMenuOpen && (
+                                <div
+                                    className="filter-menu"
+                                    role="menu"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
                                     <button
                                         type="button"
-                                        className="filter-menu-item"
+                                        className={`filter-menu-item filter-menu-item--all ${categoryFilter === "all" ? "is-selected" : ""}`}
                                         onClick={() => {
                                             setCategoryFilter("all");
                                             setIsCategoryMenuOpen(false);
@@ -393,27 +406,28 @@ function ExpensesPage() {
                                         Toutes
                                     </button>
 
-                                    {categories.length === 0 ? (
-                                        <div className="filter-menu-item filter-menu-item--disabled">Aucune catégorie</div>
-                                    ) : (
-                                        categories.map((c) => (
-                                            <button
-                                                key={c}
-                                                type="button"
-                                                className="filter-menu-item"
-                                                onClick={() => {
-                                                    setCategoryFilter(c);
-                                                    setIsCategoryMenuOpen(false);
-                                                }}
-                                            >
-                                                {c}
-                                            </button>
-                                        ))
-                                    )}
+                                    <div className="filter-menu-separator" />
+
+                                    {categories.map((c) => (
+                                        <button
+                                            key={c}
+                                            type="button"
+                                            className={`filter-menu-item ${categoryFilter === c ? "is-selected" : ""}`}
+                                            title={c}
+                                            onClick={() => {
+                                                setCategoryFilter(c);
+                                                setIsCategoryMenuOpen(false);
+                                            }}
+                                        >
+                                            <span className="filter-menu-item-text">{c}</span>
+                                        </button>
+                                    ))}
+                                    
                                 </div>
                             )}
                         </div>
                     </div>
+
 
                     <div className="page-kpi">
                         <div className="page-kpi-label">Total du mois</div>

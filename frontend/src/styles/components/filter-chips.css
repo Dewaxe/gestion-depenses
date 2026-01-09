@@ -91,6 +91,8 @@
   box-shadow: 0 16px 30px rgba(17, 24, 39, 0.12);
   overflow: hidden;
   z-index: 60;
+  max-height: 240px;
+  overflow-y: auto;
 }
 
 .filter-menu-item {
@@ -107,7 +109,53 @@
   background: #f6f7fb;
 }
 
+.filter-menu-item-text {
+  display: block;
+  max-width: 260px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
 /* Optional min widths used in pages */
 .source-filter {
   min-width: 160px;
+}
+
+/* Category dropdown wrapper (like .type-filter) */
+.category-filter {
+  position: relative;
+  display: inline-flex;
+  width: fit-content;
+}
+
+/* Chip state: active (open or selected) */
+.filter-chip--active {
+  color: #0f172a;
+  background: #ffffff;
+  border-color: #94a3b8;
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+}
+
+/* Separator after "Toutes" */
+.filter-menu-separator {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 6px 8px;
+}
+
+/* Selected item */
+.filter-menu-item.is-selected {
+  font-weight: 700;
+}
+
+/* Les chips qui ouvrent un menu doivent paraître cliquables, même sans sélection */
+.filter-chip--dropdown {
+  color: #0f172a;
+}
+
+/* optionnel: léger hover pour renforcer l'affordance */
+.filter-chip--dropdown:hover {
+  background: #f8fafc;
 }
