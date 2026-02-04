@@ -1,0 +1,82 @@
+.mockups-page {
+    width: 100%;
+    height: 100dvh;
+    overflow-y: auto;
+    padding: 24px 0;
+    box-sizing: border-box;
+}
+
+.mockups-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.mockups-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.mockups-back {
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    background: #ffffff;
+    color: inherit;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mockups-back:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.mockups-title {
+    margin-bottom: 8px;
+}
+
+.mockups-subtitle {
+    margin-bottom: 24px;
+    opacity: 0.8;
+}
+
+.mockups-grid {
+    columns: 4 240px;
+    column-gap: 16px;
+}
+
+.mockup-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-decoration: none;
+    color: inherit;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    break-inside: avoid;
+    margin-bottom: 16px;
+}
+
+.mockup-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.mockup-card img {
+    width: 100%;
+    border-radius: 10px;
+    display: block;
+}
+
+.mockup-card span {
+    font-weight: 600;
+    text-align: center;
+}

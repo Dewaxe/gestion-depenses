@@ -9,8 +9,24 @@ import SubscriptionsPage from "./pages/SubscriptionsPage";
 import AnalysisPage from "./pages/AnalysisPage";
 import RevenuesPage from "./pages/RevenuesPage";
 import SettingsPage from "./pages/SettingsPage";
+import ComingSoonPage from "./pages/ComingSoonPage";
+import MockupsPage from "./pages/MockupsPage";
 
 export function AppRouter() {
+    const isMaintenance = import.meta.env.VITE_MAINTENANCE === "true";
+
+    if (isMaintenance) {
+        return (
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/" element={<ComingSoonPage />} />
+                    <Route path="/mockups" element={<MockupsPage />} />
+                    <Route path="*" element={<ComingSoonPage />} />
+                </Routes>
+            </BrowserRouter>
+        );
+    }
+
     return (
         <BrowserRouter>
             <Routes>
