@@ -1,110 +1,127 @@
-# 💸 Gestion de dépenses & abonnements
+# 💸 Eco Buddy – Application de gestion de dépenses
 
-Application full-stack pour suivre ses **dépenses** et ses **abonnements**, avec un **dashboard** simple et lisible.
+Eco Buddy est une **application web de gestion de finances personnelles** pour suivre les **dépenses**, **revenus** et **abonnements**.  
+Le projet est développé comme un **projet portfolio full‑stack** avec une attention particulière à la **qualité du code**, la **logique métier** et l’**expérience utilisateur**.
 
-- Frontend : React + TypeScript (Vite)
-- Backend : Node.js + Express
-- Base de données : SQLite
-- Déploiement : Front sur Vercel, Back sur Render
-
-> Projet perso réalisé pour approfondir le développement full-stack JavaScript et servir de projet portfolio.
+🌍 Site public : https://eco-buddy.dempure.com
 
 ---
 
-## 🖥️ Démo
+## 🎯 Objectif du projet
 
-- **Frontend (Vercel)** : https://gestion-depenses-abonnements.vercel.app/  
-- **Backend API (Render)** :
-    - https://gestion-depenses-backend.onrender.com/api/expenses
-    - https://gestion-depenses-backend.onrender.com/api/subscriptions
+L’objectif d'Eco Buddy est de fournir une base saine pour une application de budget personnel :
+* Comprendre où va son argent
+* Anticiper les charges récurrentes
+* Visualiser rapidement sa situation financière
+* Poser des règles budgétaires efficientes
+
+Côté développement :
+* **Architecture claire** front / back
+* **Logique métier explicite et documentée**
+* Composants réutilisables
+* Code lisible et maintenable
 
 ---
 
-## ✨ Fonctionnalités
+## ✨ Fonctionnalités principales
 
 ### Dépenses
+* Ajout, modification et suppression de dépenses
+* Association à une catégorie
+* Gestion des dépenses ponctuelles ou issues d’abonnements
+* Calculs automatiques du total et des dépenses du mois courant
 
-- Ajouter une dépense (montant, date, catégorie, moyen de paiement, description).
-- Afficher la liste des dépenses.
-- Calculer automatiquement :
-  - le total de toutes les dépenses,
-  - le total des dépenses du **mois courant**.
+### Revenus
+* Ajout de **revenus ponctuels ou récurrents**
+* Visualisation par mois
+* Calcul du solde basé sur le mois affiché
 
 ### Abonnements
+* Création d’abonnements (mensuel, annuel, trimestriel, etc.)
+* Calcul du coût mensuel équivalent
+* **Génération automatique des dépenses** liées aux abonnements
+* Gestion des statuts (actif, promo, résilié)
 
-- Ajouter un abonnement (nom du service, prix, devise, fréquence, prochaine échéance, description).
-- Afficher la liste des abonnements.
-- Calculer :
-  - le total des abonnements **mensuels**,
-  - le total des abonnements **annuels**.
+### Accueil / Dashboard
+* Vue synthétique de la situation financière
+* Solde du mois
+* Dépenses cumulées
+* Prochains prélèvements
 
-### Dashboard (page d’accueil)
+### Analyse
+* Analyse des dépenses par catégorie
+* Comparaison sur plusieurs mois
 
-- Vue d’ensemble :
-  - total des dépenses,
-  - dépenses du mois en cours,
-  - total des abonnements mensuels,
-  - total des abonnements annuels.
-- Liste des **prochaines échéances d’abonnements**.
-- Liste des **dernières dépenses** enregistrées.
+### Import
+* Import de données via fichier CSV
+* Prévisualisation avant validation
 
 ---
 
 ## 🧱 Stack technique
 
 ### Frontend
-
-- [React] + [TypeScript]
-- [Vite] pour le bundling et le dev server
-- React Router pour la navigation
-- Appels à l’API via `fetch` encapsulé dans un petit client (`api/client.ts`)
+* **React** + **TypeScript**
+* **Vite** pour le bundling et le dev server
+* React Router pour la navigation
+* CSS modulaire et composants réutilisables
 
 ### Backend
+* **Node.js** + **Express**
+* API REST
+* **SQLite** avec `better-sqlite3`
 
-- [Node.js] + [Express]
-- [better-sqlite3] pour interagir avec SQLite
-- API REST simple :
-  - `/api/expenses` (GET, POST)
-  - `/api/subscriptions` (GET, POST)
+### Déploiement
+Le site est **auto-hébergé** sur un serveur personnel (raspberry pi) :
 
-### Base de données
+* Environnement Linux
+* Build de l’application, en séparant backend et frontend
+* Serveur web pour la mise en ligne
+* Gestion manuelle du déploiement pour une parfaite compréhension de la chaîne complète
 
-- SQLite, fichier local `database.sqlite`
-- Tables :
-  - `expenses`
-  - `subscriptions`
+👉 Portfolio en ligne : **https://eco-buddy.dempure.com**
 
 ---
 
-## 🗂️ Structure du projet
+## 🗂️ Architecture du projet
+
+Le dépôt est organisé en deux applications distinctes, front et back, avec leurs dépendances et configurations propres.
 
 ```txt
 .
 ├── backend
-│   ├── db.js              # Connexion à SQLite et création des tables
-│   ├── server.js          # Serveur Express + routes API
-│   ├── package.json
+│   ├── server.js              # Serveur Express + routes API
+│   ├── db.js                  # Connexion SQLite et création des tables
+│   ├── routes/                # Endpoints REST
+│   ├── services/              # Logique métier côté serveur
+│   ├── middleware/            # Auth, validation, etc.
+│   ├── .env                   # Variables d’environnement backend
 │   └── ...
 ├── frontend
 │   ├── src
-│   │   ├── api
-│   │   │   ├── client.ts              # Client API générique (apiFetch)
-│   │   │   ├── expensesApi.ts         # Fonctions pour l'API /expenses
-│   │   │   └── subscriptionsApi.ts    # Fonctions pour l'API /subscriptions
-│   │   ├── components
-│   │   │   ├── Card.tsx               # Composant visuel de "carte"
-│   │   │   └── PageTitle.tsx          # Titre de page réutilisable
-│   │   ├── pages
-│   │   │   ├── HomePage.tsx           # Dashboard
-│   │   │   ├── ExpensesPage.tsx       # Gestion des dépenses
-│   │   │   └── SubscriptionsPage.tsx  # Gestion des abonnements
-│   │   ├── types
-│   │   │   ├── expense.ts
-│   │   │   └── subscription.ts
-│   │   ├── App.tsx
-│   │   ├── main.tsx
-│   │   └── index.css
-│   ├── package.json
+│   │   ├── api/               # Client API et endpoints
+│   │   ├── components/        # Composants UI réutilisables
+│   │   ├── pages/             # Pages principales (Accueil, Dépenses, etc.)
+│   │   ├── styles/            # Styles globaux et spécifiques
+│   │   ├── types/             # Typage TypeScript
+│   │   └── ...
+│   ├── public/                # Assets statiques
+│   ├── .env.development       # Variables d’environnement front
 │   └── ...
-├── README.md
-└── ...
+└── README.md
+```
+
+---
+
+## 📌 État du projet
+
+Le projet est en cours de développement actif.  
+Certaines fonctionnalités sont déjà opérationnelles, d’autres sont en cours d’implémentation ou de refonte.
+
+---
+
+## 👤 À propos
+
+Eco Buddy est un projet personnel réalisé dans une démarche d’amélioration continue en développement web full‑stack.  
+Il sert à la fois de terrain d’expérimentation technique et de vitrine de compétences.
+
